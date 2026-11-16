@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sift-cleaner"
+version = "0.1.0"
+description = "Find the clutter. Keep the code. Local-first discovery and cleanup of regeneratable development artifacts."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+authors = [{ name = "AndyFerns" }]
+keywords = ["cleanup", "disk-usage", "developer-tools", "build-artifacts", "cli", "tui"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development",
+    "Topic :: System :: Filesystems",
+    "Typing :: Typed",
+]
+dependencies = [
+    "pydantic>=2",
+    "typer",
+    "rich",
+    "textual",
+    "fastapi",
+    "uvicorn",
+    "pathspec",
+    "platformdirs",
+    "tomli-w",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "httpx",
+    "ruff",
+    "mypy",
+    "build",
+]
+
+[project.scripts]
+sift = "sift.cli.app:main"
+
+[project.urls]
+Repository = "https://github.com/AndyFerns/sift"
+Issues = "https://github.com/AndyFerns/sift/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sift"]
+# The built dashboard is gitignored, so it has to be pulled into the wheel explicitly.
+artifacts = ["src/sift/api/static/**"]
+
+[tool.hatch.build.targets.sdist]
+include = ["src", "tests", "scripts", "README.md", "LICENSE", "CHANGELOG.md"]
+artifacts = ["src/sift/api/static/**"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "C4", "PTH", "RUF"]
+ignore = [
+    "PTH",    # the scanner uses os.scandir / os.path on purpose: it is much faster than pathlib
+    "B008",   # typer.Option(...) defaults are the documented Typer idiom
+    "RUF001", # the multiplication sign and ellipsis in UI strings are intentional
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["B011"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src/sift"]
+plugins = ["pydantic.mypy"]

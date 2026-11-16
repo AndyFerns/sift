@@ -1,0 +1,29 @@
+name: Feature request
+description: Suggest a new detector, option or improvement
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: Describe the situation, not just the solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like Sift to do?
+    validations:
+      required: true
+  - type: textarea
+    id: detector
+    attributes:
+      label: For new detectors - how can the artifact be recognised safely?
+      description: |
+        Sift never classifies on a directory name alone. Which manifest files or internal
+        marker files prove that this directory is regeneratable? How is it regenerated?
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have considered
+      description: For example a custom rule in config.toml.
