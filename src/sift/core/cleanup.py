@@ -100,7 +100,7 @@ def _validate(
     return target
 
 
-def _plan_item(
+def plan_item(
     artifact: Artifact, root: str, ruleset: RuleSet, min_confidence: Confidence
 ) -> CleanupItem:
     size = artifact.size
@@ -179,7 +179,7 @@ def build_plan(
         raise UnknownArtifact(unknown)
 
     threshold = min_confidence or scan.options.min_confidence
-    items = [_plan_item(by_id[i], scan.root, ruleset, threshold) for i in selected]
+    items = [plan_item(by_id[i], scan.root, ruleset, threshold) for i in selected]
     allowed = [item for item in items if item.allowed]
     refused = [item for item in items if not item.allowed]
     now = datetime.now(UTC)
