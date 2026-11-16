@@ -26,6 +26,7 @@ import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from typing import Literal
 
 from sift.core import sizing
 from sift.core.detectors import PROJECT_MANIFESTS, Candidate, Detection, RuleSet, list_dir
@@ -67,6 +68,7 @@ class ScanProgress:
 
 
 ProgressCallback = Callable[[ScanProgress], None]
+IssueKind = Literal["permission", "vanished", "error", "nested-repository", "not-measured"]
 
 
 @dataclass(slots=True)
@@ -96,6 +98,11 @@ def resolve_root(path: str | os.PathLike[str]) -> str:
     if not os.path.isdir(expanded):
         raise ScanError(f"{expanded} is not a directory")
     return os.path.realpath(expanded)
+
+
+def printable(path: str) -> str:
+    """``path`` with any characters that cannot be encoded as UTF-8 replaced."""
+    return path.encode("utf-8", "replace").decode("utf-8")
 
 
 def _relative(path: str, root: str) -> str:
@@ -202,11 +209,20 @@ class _Discovery:
                 if max_depth is None or depth < max_depth:
                     stack.append((child, depth + 1, owner, layers))
 
-    def _issue(self, kind: str, path: str, message: str) -> None:
-        self.issues.append(ScanIssue(kind=kind, path=path, message=message))
+    def _issue(self, kind: IssueKind, path: str, message: str) -> None:
+        self.issues.append(ScanIssue(kind=kind, path=printable(path), message=message))
 
     def _record(self, detection: Detection, owner: int) -> None:
         rule = detection.rule
+        if printable(detection.path) != detection.path:
+            # A name that is not valid Unicode cannot be reported faithfully, and a path
+            # that cannot be reported exactly must never become a cleanup target.
+            self._issue("error", detection.path, "skipped: the name is not valid Unicode")
+            return
+        for evidence in detection.evidence:
+            evidence.detail = printable(evidence.detail)
+            if evidence.path is not None:
+                evidence.path = printable(evidence.path)
         project = self.projects[owner]
         identifier = artifact_id(detection.path)
         cleanable = not detection.ambiguous and detection.confidence.meets(

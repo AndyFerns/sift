@@ -209,9 +209,13 @@ def scan_summary(result: ScanResult) -> Text:
     text.append(f"   {totals.file_count:,} files\n")
     text.append(f"  cleanable  {format_bytes(totals.cleanable_logical_bytes):>11}", style="green")
     text.append(f"   {totals.cleanable_count} artifacts\n", style="green")
-    if totals.review_count:
+    ambiguous = sum(1 for a in result.artifacts if a.ambiguous)
+    below = totals.review_count - ambiguous
+    if ambiguous:
+        text.append(f"  {ambiguous} need review and cannot be cleaned (marked ?)\n", style="yellow")
+    if below > 0:
         text.append(
-            f"  {totals.review_count} need review and cannot be cleaned (marked ?)\n",
+            f"  {below} below the {result.options.min_confidence.value} confidence threshold\n",
             style="yellow",
         )
     unmeasured = totals.artifact_count - totals.measured_count
@@ -229,7 +233,8 @@ def issues_text(result: ScanResult, *, limit: int = 10) -> Text | None:
     if not result.issues:
         return None
     text = Text()
-    text.append(f"{len(result.issues)} notes:\n", style="yellow")
+    noun = "note" if len(result.issues) == 1 else "notes"
+    text.append(f"{len(result.issues)} {noun}:\n", style="yellow")
     for issue in result.issues[:limit]:
         text.append(f"  {issue.kind}: ", style="yellow")
         text.append(f"{issue.path} - {issue.message}\n")
