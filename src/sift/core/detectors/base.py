@@ -245,6 +245,30 @@ class RuleSet:
                 for name in rule.names:
                     index.setdefault(name, []).append(rule)
 
+    def classify_path(self, path: str) -> Detection | None:
+        """Classify one path from scratch, the way the scanner would have met it.
+
+        Used to re-check an artifact right before it is deleted. Returns None when the
+        path is gone, is a link, or is no longer recognised as an artifact at all.
+        """
+        # The artifact may be the matched entry itself, or a child of it (.angular/cache).
+        for matched in (path, os.path.dirname(path)):
+            name = os.path.basename(matched)
+            try:
+                listing = list_dir(os.path.dirname(matched))
+            except OSError:
+                return None
+            if name in listing.dirs:
+                is_dir = True
+            elif name in listing.files:
+                is_dir = False
+            else:
+                continue
+            detection = self.classify(Candidate(matched, name, is_dir, listing))
+            if detection is not None and os.path.normcase(detection.path) == os.path.normcase(path):
+                return detection
+        return None
+
     def classify(self, candidate: Candidate) -> Detection | None:
         """Run every rule that cares about this name and settle on one answer."""
         index = self.dir_rules if candidate.is_dir else self.file_rules

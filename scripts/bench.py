@@ -56,36 +56,54 @@ def main() -> None:
     parser.add_argument("--source-dirs", type=int, default=50, help="source dirs per project")
     parser.add_argument("--runs", type=int, default=5)
     parser.add_argument("--workers", type=int, default=None)
+    parser.add_argument(
+        "--keep",
+        metavar="DIR",
+        help="build the tree in DIR and leave it there (reused if it already exists)",
+    )
     args = parser.parse_args()
 
+    if args.keep:
+        root = Path(args.keep)
+        if not root.exists():
+            root.mkdir(parents=True)
+            started = time.perf_counter()
+            written = build(root, args.projects, args.files, args.per_dir, args.source_dirs)
+            print(f"built {written:,} artifact files in {time.perf_counter() - started:.1f}s")
+        else:
+            print(f"reusing {root}")
+        run(root, args.runs, args.workers)
+        return
     with tempfile.TemporaryDirectory(prefix="sift-bench-") as tmp:
         root = Path(tmp)
         started = time.perf_counter()
         written = build(root, args.projects, args.files, args.per_dir, args.source_dirs)
         print(f"built {written:,} artifact files in {time.perf_counter() - started:.1f}s")
-        print(f"{platform.system()} {platform.release()}, {os.cpu_count()} logical CPUs")
+        run(root, args.runs, args.workers)
 
-        discovery: list[float] = []
-        sizing: list[float] = []
-        total: list[float] = []
-        for run in range(args.runs):
-            result = scan(root, ScanOptions(recursive=True), workers=args.workers)
-            assert result.totals.file_count == written + args.projects
-            discovery.append(result.stats.discovery_ms)
-            sizing.append(result.stats.sizing_ms)
-            total.append(result.stats.total_ms)
-            print(
-                f"  run {run + 1}: discovery {result.stats.discovery_ms:8.1f} ms   "
-                f"sizing {result.stats.sizing_ms:8.1f} ms   total {result.stats.total_ms:8.1f} ms"
-            )
+
+def run(root: Path, runs: int, workers: int | None) -> None:
+    print(f"{platform.system()} {platform.release()}, {os.cpu_count()} logical CPUs")
+    discovery: list[float] = []
+    sizing: list[float] = []
+    total: list[float] = []
+    for index in range(runs):
+        result = scan(root, ScanOptions(recursive=True), workers=workers)
+        discovery.append(result.stats.discovery_ms)
+        sizing.append(result.stats.sizing_ms)
+        total.append(result.stats.total_ms)
         print(
-            f"median: discovery {statistics.median(discovery):.1f} ms, "
-            f"sizing {statistics.median(sizing):.1f} ms, total {statistics.median(total):.1f} ms "
-            f"for {result.totals.artifact_count} artifacts / {result.totals.file_count:,} files "
-            f"/ {result.stats.directories_visited:,} source directories"
+            f"  run {index + 1}: discovery {result.stats.discovery_ms:8.1f} ms   "
+            f"sizing {result.stats.sizing_ms:8.1f} ms   total {result.stats.total_ms:8.1f} ms"
         )
-        only = scan(root, ScanOptions(recursive=True, measure=False))
-        print(f"discovery only (no sizing): {only.stats.total_ms:.1f} ms")
+    print(
+        f"median: discovery {statistics.median(discovery):.1f} ms, "
+        f"sizing {statistics.median(sizing):.1f} ms, total {statistics.median(total):.1f} ms "
+        f"for {result.totals.artifact_count} artifacts / {result.totals.file_count:,} files "
+        f"/ {result.stats.directories_visited:,} source directories"
+    )
+    only = scan(root, ScanOptions(recursive=True, measure=False))
+    print(f"discovery only (no sizing): {only.stats.total_ms:.1f} ms")
 
 
 if __name__ == "__main__":
