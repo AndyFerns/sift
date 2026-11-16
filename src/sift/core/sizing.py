@@ -12,31 +12,49 @@ and files with several hard links are counted once. On Windows that would cost a
 system call per file, so Sift rounds each file up to the volume's cluster size instead and
 labels the result as an estimate.
 
-Measuring walks every directory in the artifact. Directories are handed out to a thread
-pool so large trees are read in parallel. Links are counted but never followed.
+How it stays fast
+-----------------
+Measuring means visiting every directory in the artifact; there is no shortcut. Work is
+shared out as chunks of directories:
+
+* Two threads start immediately. Small scans finish here, in milliseconds, without
+  paying for anything else.
+* If measuring is still going after a moment, helper *processes* are started and take
+  chunks too. Walking is CPU-bound in Python once the directory entries are cached, so
+  threads alone cannot use more than one core; helper processes can.
+
+Links are counted but never followed.
 """
 
 from __future__ import annotations
 
+import json
 import os
+import subprocess
 import sys
 import threading
 import time
+from collections import deque
 from collections.abc import Callable, Sequence
-from concurrent.futures import ThreadPoolExecutor
 from typing import Literal
 
+from sift.core import _walker
 from sift.core.models import SizeInfo, SizeMethod
-
-# A worker that has more than this many directories queued hands half of them to the pool.
-_SPLIT_AT = 16
 
 Kind = Literal["directory", "file"]
 OnMeasured = Callable[[str, SizeInfo | None], None]
+WalkFunction = Callable[[list[str], int, int], _walker.WalkResult]
+
+_LOCAL_THREADS = 2
+_CHUNK_DIRS = 24  # directories handed over in one chunk
+_BUDGET = 3000  # entries a worker examines before sharing out what it has left
+_HELPER_DELAY = 0.25  # seconds of measuring before helper processes are worth starting
+_MAX_HELPERS = 8
 
 
-def default_workers() -> int:
-    return min(16, (os.cpu_count() or 4) * 2)
+def default_helpers() -> int:
+    """How many helper processes to use for large trees."""
+    return max(1, min(_MAX_HELPERS, (os.cpu_count() or 2) - 2))
 
 
 def extended_path(path: str) -> str:
@@ -91,7 +109,6 @@ class _Job:
         "errors",
         "files",
         "links",
-        "lock",
         "logical",
         "path",
         "pending",
@@ -100,9 +117,8 @@ class _Job:
 
     def __init__(self, path: str) -> None:
         self.path = path
-        self.lock = threading.Lock()
         self.done = threading.Event()
-        self.pending = 1
+        self.pending = 1  # chunks queued or being walked
         self.aborted = False
         self.logical = 0
         self.allocated = 0
@@ -110,7 +126,7 @@ class _Job:
         self.dirs = 0
         self.links = 0
         self.errors = 0
-        self.cluster = cluster_size(path)
+        self.cluster = cluster_size(path) or 0
         self.seen: set[tuple[int, int]] = set()
 
     def info(self) -> SizeInfo:
@@ -130,97 +146,166 @@ class _Job:
         )
 
 
+class _Helper:
+    """One helper process running :mod:`sift.core._walker`."""
+
+    def __init__(self) -> None:
+        flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+        # -I and -S: the helper needs only the standard library, so skip site-packages
+        # and anything the environment could inject. It starts faster that way too.
+        self._process = subprocess.Popen(
+            [sys.executable, "-I", "-S", _walker.__file__],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            creationflags=flags,
+        )
+
+    def walk(self, stack: list[str], cluster: int, budget: int) -> _walker.WalkResult:
+        process = self._process
+        assert process.stdin is not None and process.stdout is not None
+        process.stdin.write(json.dumps([stack, cluster, budget]).encode("ascii") + b"\n")
+        process.stdin.flush()
+        line = process.stdout.readline()
+        if not line:
+            raise RuntimeError("the helper process exited")
+        logical, allocated, files, dirs, links, errors, leftover, hardlinks = json.loads(line)
+        return (
+            logical,
+            allocated,
+            files,
+            dirs,
+            links,
+            errors,
+            leftover,
+            [(dev, ino, size) for dev, ino, size in hardlinks],
+        )
+
+    def hang_up(self) -> None:
+        """Close the request pipe; the helper exits once it has answered what it was asked."""
+        try:
+            if self._process.stdin is not None:
+                self._process.stdin.close()
+        except OSError:
+            pass
+
+    def reap(self) -> None:
+        process = self._process
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait()
+        if process.stdout is not None:
+            process.stdout.close()
+
+
 class _Measurer:
-    def __init__(self, workers: int, deadline: float | None, on_measured: OnMeasured | None):
-        self._pool = ThreadPoolExecutor(max_workers=workers, thread_name_prefix="sift-size")
+    def __init__(self, deadline: float | None, on_measured: OnMeasured | None) -> None:
         self._deadline = deadline
         self._on_measured = on_measured
-        self._stop = threading.Event()
+        self._ready = threading.Condition()
+        self._queue: deque[tuple[_Job, list[str]]] = deque()
+        self._closing = False
+        self._expired = False
+        self._threads: list[threading.Thread] = []
+        self._helpers: list[_Helper] = []
+        for _ in range(_LOCAL_THREADS):
+            self._spawn(_walker.walk)
+
+    def _spawn(self, function: WalkFunction) -> None:
+        thread = threading.Thread(target=self._work, args=(function,), daemon=True)
+        thread.name = "sift-size"
+        self._threads.append(thread)
+        thread.start()
+
+    def start_helpers(self, count: int) -> None:
+        """Bring up helper processes. Failure to start one is not an error."""
+        if not sys.executable or getattr(sys, "frozen", False):
+            return
+        for _ in range(count):
+            try:
+                helper = _Helper()
+            except OSError:
+                return
+            self._helpers.append(helper)
+            self._spawn(helper.walk)
 
     def close(self) -> None:
-        self._stop.set()
-        self._pool.shutdown(wait=True, cancel_futures=True)
-
-    def start(self, path: str) -> _Job:
-        job = _Job(path)
-        self._pool.submit(self._walk, job, [extended_path(path)])
-        return job
+        with self._ready:
+            self._closing = True
+            self._ready.notify_all()
+        for helper in self._helpers:
+            helper.hang_up()
+        for thread in self._threads:
+            thread.join()
+        for helper in self._helpers:
+            helper.reap()
 
     def expired(self) -> bool:
-        if self._stop.is_set():
+        if self._expired:
             return True
         if self._deadline is not None and time.perf_counter() >= self._deadline:
-            self._stop.set()
-            return True
-        return False
+            self._expired = True
+        return self._expired
 
-    def _allocated(self, job: _Job, stat: os.stat_result) -> int:
-        if sys.platform == "win32":
-            if job.cluster:
-                return -(-stat.st_size // job.cluster) * job.cluster
-            return 0
-        if stat.st_nlink > 1:
-            key = (stat.st_dev, stat.st_ino)
-            with job.lock:
-                if key in job.seen:
-                    return 0
-                job.seen.add(key)
-        return stat.st_blocks * 512
+    def submit(self, path: str) -> _Job:
+        job = _Job(path)
+        with self._ready:
+            self._queue.append((job, [extended_path(path)]))
+            self._ready.notify()
+        return job
 
-    def _walk(self, job: _Job, stack: list[str]) -> None:
-        logical = allocated = files = dirs = links = errors = 0
-        aborted = False
-        try:
-            while stack:
-                if self.expired():
-                    aborted = True
+    def _work(self, function: WalkFunction) -> None:
+        while True:
+            with self._ready:
+                while not self._queue and not self._closing:
+                    self._ready.wait()
+                if self._closing:
                     return
-                current = stack.pop()
-                try:
-                    with os.scandir(current) as entries:
-                        for entry in entries:
-                            try:
-                                if entry.is_symlink() or entry.is_junction():
-                                    links += 1
-                                elif entry.is_dir(follow_symlinks=False):
-                                    dirs += 1
-                                    stack.append(entry.path)
-                                else:
-                                    stat = entry.stat(follow_symlinks=False)
-                                    files += 1
-                                    logical += stat.st_size
-                                    allocated += self._allocated(job, stat)
-                            except OSError:
-                                errors += 1
-                except OSError:
-                    errors += 1
-                if len(stack) > _SPLIT_AT:
-                    half = len(stack) // 2
-                    share, stack = stack[:half], stack[half:]
-                    with job.lock:
-                        job.pending += 1
-                    try:
-                        self._pool.submit(self._walk, job, share)
-                    except RuntimeError:  # pool is shutting down
-                        with job.lock:
-                            job.pending -= 1
-                        aborted = True
-                        return
-        finally:
-            with job.lock:
+                job, stack = self._queue.popleft()
+            if self.expired():
+                self._settle(job, None)
+                continue
+            try:
+                result = function(stack, job.cluster, _BUDGET)
+            except Exception:
+                if function is _walker.walk or self._closing:
+                    self._settle(job, None)
+                    continue
+                # A helper process died. Do this chunk here and retire the thread.
+                self._settle(job, _walker.walk(stack, job.cluster, _BUDGET))
+                return
+            self._settle(job, result)
+
+    def _settle(self, job: _Job, result: _walker.WalkResult | None) -> None:
+        """Fold one chunk's totals into its job and queue whatever it left unwalked."""
+        with self._ready:
+            job.pending -= 1
+            if result is None:
+                job.aborted = True
+            else:
+                logical, allocated, files, dirs, links, errors, leftover, hardlinks = result
                 job.logical += logical
                 job.allocated += allocated
                 job.files += files
                 job.dirs += dirs
                 job.links += links
                 job.errors += errors
-                job.pending -= 1
-                job.aborted = job.aborted or aborted
-                finished = job.pending == 0 and not job.aborted
-            if finished:
-                if self._on_measured is not None:
-                    self._on_measured(job.path, job.info())
-                job.done.set()
+                for device, inode, size in hardlinks:
+                    if (device, inode) not in job.seen:
+                        job.seen.add((device, inode))
+                        job.allocated += size
+                for start in range(0, len(leftover), _CHUNK_DIRS):
+                    self._queue.append((job, leftover[start : start + _CHUNK_DIRS]))
+                    job.pending += 1
+                if leftover:
+                    self._ready.notify_all()
+            finished = job.pending == 0 and not job.aborted
+        if finished:
+            if self._on_measured is not None:
+                self._on_measured(job.path, job.info())
+            job.done.set()
 
 
 def measure_file(path: str) -> SizeInfo:
@@ -253,6 +338,7 @@ def measure_all(
     workers: int | None = None,
     time_budget: float | None = None,
     on_measured: OnMeasured | None = None,
+    helper_delay: float = _HELPER_DELAY,
 ) -> dict[str, SizeInfo | None]:
     """Measure every target, in parallel.
 
@@ -260,11 +346,15 @@ def measure_all(
     ``time_budget`` seconds elapsed. A partial walk is discarded rather than reported,
     because a number that covers only part of a directory would be misleading.
 
-    ``on_measured`` is called from a worker thread as each directory completes.
+    ``workers`` is the number of helper processes allowed for large trees (default: based
+    on the CPU count; 0 disables them). ``on_measured`` is called from a worker thread as
+    each directory completes.
     """
     results: dict[str, SizeInfo | None] = {}
-    deadline = None if time_budget is None else time.perf_counter() + time_budget
-    measurer = _Measurer(workers or default_workers(), deadline, on_measured)
+    started = time.perf_counter()
+    deadline = None if time_budget is None else started + time_budget
+    helpers = default_helpers() if workers is None else workers
+    measurer = _Measurer(deadline, on_measured)
     jobs: list[_Job] = []
     try:
         for path, kind in targets:
@@ -274,10 +364,13 @@ def measure_all(
                 if on_measured is not None:
                     on_measured(path, info)
             else:
-                jobs.append(measurer.start(path))
+                jobs.append(measurer.submit(path))
         for job in jobs:
             while not job.done.is_set() and not measurer.expired():
                 job.done.wait(0.02)
+                if helpers and time.perf_counter() - started >= helper_delay:
+                    measurer.start_helpers(helpers)
+                    helpers = 0
     finally:
         measurer.close()
     for job in jobs:

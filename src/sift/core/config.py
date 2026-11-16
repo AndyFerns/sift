@@ -53,7 +53,8 @@ class ScanConfig(_Section):
     min_confidence: Confidence = Confidence.MEDIUM
     """Artifacts below this confidence are reported but can never be cleaned."""
     time_budget_seconds: float | None = Field(default=None, gt=0)
-    workers: int | None = Field(default=None, ge=1, le=64)
+    workers: int | None = Field(default=None, ge=0, le=64)
+    """Helper processes used to measure large trees. Unset picks from the CPU count."""
 
 
 class GoConfig(_Section):

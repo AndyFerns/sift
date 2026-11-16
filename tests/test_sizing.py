@@ -124,8 +124,14 @@ def test_junctions_are_counted_not_followed(tmp_path: Path) -> None:
     assert info.dir_count == 0
 
 
-def test_wide_and_deep_tree_is_measured_in_parallel(tmp_path: Path) -> None:
-    """Enough directories to force work to be split across the pool."""
+def test_wide_and_deep_tree_is_measured_in_parallel(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Enough directories that the walk is shared out in chunks.
+
+    The answer must be identical whether the chunks are walked by the two in-process
+    threads or by helper processes.
+    """
     expected_bytes = 0
     for a in range(12):
         for b in range(12):
@@ -133,13 +139,95 @@ def test_wide_and_deep_tree_is_measured_in_parallel(tmp_path: Path) -> None:
                 size = a + b + c + 1
                 write(tmp_path / f"a{a}" / f"b{b}" / f"c{c}" / "f.bin", size)
                 expected_bytes += size
-    for workers in (1, 2, 8):
-        info = measure_all([(str(tmp_path), "directory")], workers=workers)[str(tmp_path)]
-        assert info is not None
-        assert info.logical_bytes == expected_bytes
-        assert info.file_count == 12 * 12 * 3
-        assert info.dir_count == 12 + 12 * 12 + 12 * 12 * 3
-        assert info.complete
+    monkeypatch.setattr(sizing, "_BUDGET", 20)  # tiny chunks, so there is plenty to share
+    monkeypatch.setattr(sizing, "_CHUNK_DIRS", 4)
+    modes: list[dict[str, object]] = [
+        {"workers": 0},
+        {"workers": 1, "helper_delay": 0.0},
+        {"workers": 3, "helper_delay": 0.0},
+    ]
+    for mode in modes:
+        info = measure_all([(str(tmp_path), "directory")], **mode)[str(tmp_path)]  # type: ignore[arg-type]
+        assert info is not None, mode
+        assert info.logical_bytes == expected_bytes, mode
+        assert info.file_count == 12 * 12 * 3, mode
+        assert info.dir_count == 12 + 12 * 12 + 12 * 12 * 3, mode
+        assert info.complete, mode
+
+
+def test_helper_processes_really_do_the_walking(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for index in range(200):
+        write(tmp_path / f"d{index:03d}" / "f.bin", 7)
+    monkeypatch.setattr(sizing, "_BUDGET", 5)
+    monkeypatch.setattr(sizing, "_CHUNK_DIRS", 2)
+    monkeypatch.setattr(sizing, "_LOCAL_THREADS", 0)  # nothing can happen without a helper
+    served = 0
+    real = sizing._Helper.walk
+
+    def counting(self: sizing._Helper, stack: list[str], cluster: int, budget: int) -> object:
+        nonlocal served
+        served += 1
+        return real(self, stack, cluster, budget)
+
+    monkeypatch.setattr(sizing._Helper, "walk", counting)
+    info = measure_all([(str(tmp_path), "directory")], workers=2, helper_delay=0.0)[str(tmp_path)]
+    assert info is not None
+    assert (info.file_count, info.logical_bytes, info.dir_count) == (200, 1400, 200)
+    assert served > 10
+
+
+def test_dead_helper_falls_back_to_walking_in_process(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for index in range(60):
+        write(tmp_path / f"d{index:02d}" / "f.bin", 3)
+    monkeypatch.setattr(sizing, "_BUDGET", 5)
+    monkeypatch.setattr(sizing, "_CHUNK_DIRS", 2)
+
+    def broken(self: sizing._Helper, stack: list[str], cluster: int, budget: int) -> object:
+        raise RuntimeError("the helper process exited")
+
+    monkeypatch.setattr(sizing._Helper, "walk", broken)
+    info = measure_all([(str(tmp_path), "directory")], workers=2, helper_delay=0.0)[str(tmp_path)]
+    assert info is not None
+    assert (info.file_count, info.logical_bytes) == (60, 180)
+    assert info.complete
+
+
+def test_helper_that_cannot_start_is_not_an_error(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    write(tmp_path / "f.bin", 9)
+
+    def no_process(*args: object, **kwargs: object) -> object:
+        raise OSError("cannot spawn")
+
+    monkeypatch.setattr(sizing.subprocess, "Popen", no_process)
+    info = measure_all([(str(tmp_path), "directory")], workers=4, helper_delay=0.0)[str(tmp_path)]
+    assert info is not None and info.logical_bytes == 9
+
+
+def test_walker_runs_standalone_with_only_the_standard_library(tmp_path: Path) -> None:
+    """The helper is launched with -I -S, so it must not import anything from Sift."""
+    import json
+    import subprocess
+
+    from sift.core import _walker
+
+    write(tmp_path / "a" / "one.bin", 10)
+    write(tmp_path / "a" / "b" / "two.bin", 20)
+    request = json.dumps([[str(tmp_path)], 0, 1000]).encode("ascii") + b"\n"
+    done = subprocess.run(
+        [sys.executable, "-I", "-S", _walker.__file__],
+        input=request,
+        capture_output=True,
+        timeout=60,
+        check=True,
+    )
+    logical, _allocated, files, dirs, links, errors, leftover, _hardlinks = json.loads(done.stdout)
+    assert (logical, files, dirs, links, errors, leftover) == (30, 2, 2, 0, 0, [])
 
 
 def test_many_targets_at_once(tmp_path: Path) -> None:
