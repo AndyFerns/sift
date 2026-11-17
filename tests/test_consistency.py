@@ -201,7 +201,7 @@ async def test_tui(reference: tuple[bool, list[Row]], workspace_ro: Workspace) -
         shown = [[str(cell) for cell in table.get_row_at(i)] for i in range(table.row_count)]
     assert len(shown) == len(expected)
     for cells, want in zip(shown, expected, strict=True):
-        _selected, size, allocated, files, confidence, status, rule, path = cells
+        _selected, path, size, status, rule, confidence, allocated, files = cells
         assert path == want.relative_path
         assert rule == want.rule
         assert size == reports.format_bytes(want.logical_bytes)

@@ -27,7 +27,7 @@ from sift.tui.screens import (
 )
 
 SIZE = (150, 45)
-COLUMNS = ("selected", "size", "allocated", "files", "confidence", "status", "type", "path")
+COLUMNS = ("selected", "path", "size", "status", "type", "confidence", "allocated", "files")
 
 
 async def settle(app: SiftApp, pilot: Pilot[None]) -> None:

@@ -120,14 +120,15 @@ class SiftApp(App[None]):
     def on_mount(self) -> None:
         self.sub_title = str(self.scan_path)
         table = self.query_one("#artifacts", DataTable)
+        # Path comes first: it must stay visible however narrow the terminal is.
         table.add_column(" ", key="selected", width=1)
+        table.add_column("Path", key="path")
         table.add_column("Size", key="size")
-        table.add_column("On disk", key="allocated")
-        table.add_column("Files", key="files")
-        table.add_column("Confidence", key="confidence")
         table.add_column("Status", key="status")
         table.add_column("Type", key="type")
-        table.add_column("Path", key="path")
+        table.add_column("Confidence", key="confidence")
+        table.add_column("On disk", key="allocated")
+        table.add_column("Files", key="files")
         self.action_rescan()
 
     # --- scanning -----------------------------------------------------------------------
@@ -262,13 +263,13 @@ class SiftApp(App[None]):
         )
         return [
             Text("x", style="bold green") if artifact.id in self.selected else "",
+            artifact.relative_path,
             Text(reports.describe_size(artifact.size), justify="right"),
-            Text(reports.describe_allocated(artifact.size), justify="right"),
-            Text(f"{artifact.size.file_count:,}" if artifact.size else "-", justify="right"),
-            confidence,
             status,
             artifact.rule,
-            artifact.relative_path,
+            confidence,
+            Text(reports.describe_allocated(artifact.size), justify="right"),
+            Text(f"{artifact.size.file_count:,}" if artifact.size else "-", justify="right"),
         ]
 
     def refresh_table(self) -> None:
