@@ -85,11 +85,33 @@ def test_artifacts_are_sorted_largest_first(workspace_ro: Workspace) -> None:
     assert result.artifacts[0].relative_path == "big/node_modules"
 
 
-def test_large_directory_is_counted_exactly(workspace_ro: Workspace) -> None:
+def test_many_small_files_are_counted_exactly(workspace_ro: Workspace) -> None:
     result = scan(workspace_ro.root)
     big = by_path(result)["big/node_modules"]
     assert big.size.file_count == BIG_PACKAGES * BIG_FILES_PER_PACKAGE + 1  # type: ignore[attr-defined]
     assert big.size.dir_count == BIG_PACKAGES * 2  # type: ignore[attr-defined]
+
+
+def test_large_directory(tmp_path: Path) -> None:
+    """A few thousand files across many directories, with every byte accounted for."""
+    (tmp_path / "package.json").write_text("{}")
+    modules = tmp_path / "node_modules"
+    expected_bytes = 0
+    for package in range(60):
+        directory = modules / f"pkg-{package:02d}" / "dist" / "esm"
+        directory.mkdir(parents=True)
+        for index in range(50):
+            size = (package * 7 + index) % 97
+            (directory / f"chunk-{index:02d}.js").write_bytes(b"x" * size)
+            expected_bytes += size
+    result = scan(tmp_path)
+    assert [a.relative_path for a in result.artifacts] == ["node_modules"]
+    size = result.artifacts[0].size
+    assert size is not None and size.complete
+    assert size.file_count == 3000
+    assert size.dir_count == 180
+    assert size.logical_bytes == expected_bytes
+    assert result.stats.directories_visited == 1  # the 180 directories inside are not walked
 
 
 def test_projects_group_their_artifacts(workspace_ro: Workspace) -> None:
@@ -198,7 +220,7 @@ def test_discovery_does_not_walk_artifact_contents(
     # The nested repository is listed once (to notice its .git) and then left alone.
     assert result.stats.directories_visited == len(listed) - 1
     assert not [p for p in listed if "node_modules" in p or "target" in p.split("/")]
-    assert len(listed) < 40  # the fixture holds 600+ files, almost all inside artifacts
+    assert len(listed) < 40  # the fixture holds 150+ files, almost all inside artifacts
 
 
 # --- exclusions -------------------------------------------------------------------------

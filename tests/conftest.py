@@ -41,11 +41,17 @@ def workspace(tmp_path: Path) -> Workspace:
 def tree_snapshot(root: Path) -> dict[str, tuple[int, int]]:
     """Every path under root with its size and mtime, without following links."""
     snapshot: dict[str, tuple[int, int]] = {}
-    for current, dirs, files in os.walk(root, followlinks=False):
-        for name in dirs + files:
-            full = os.path.join(current, name)
-            stat = os.lstat(full)
-            snapshot[os.path.relpath(full, root)] = (stat.st_size, stat.st_mtime_ns)
+    stack = [str(root)]
+    while stack:
+        with os.scandir(stack.pop()) as entries:
+            for entry in entries:
+                # lstat, not entry.stat(): Windows directory listings carry stale timestamps.
+                stat = os.lstat(entry.path)
+                snapshot[os.path.relpath(entry.path, root)] = (stat.st_size, stat.st_mtime_ns)
+                # os.walk follows Windows junctions; a link's target is not part of this tree.
+                is_link = entry.is_symlink() or entry.is_junction()
+                if not is_link and entry.is_dir(follow_symlinks=False):
+                    stack.append(entry.path)
     return snapshot
 
 

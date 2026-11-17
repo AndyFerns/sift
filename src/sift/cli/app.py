@@ -42,6 +42,7 @@ EXIT_OK = 0
 EXIT_ERROR = 1
 EXIT_USAGE = 2
 EXIT_UNSAFE = 3
+_WIDE = 120  # terminal width below which tables drop their less important columns
 
 app = typer.Typer(
     name="sift",
@@ -99,11 +100,11 @@ ConfidenceOption = Annotated[
 
 
 def _out() -> Console:
-    return Console(soft_wrap=False, highlight=False)
+    return Console(highlight=False)
 
 
 def _err() -> Console:
-    return Console(stderr=True, highlight=False)
+    return Console(stderr=True, soft_wrap=True, highlight=False)
 
 
 def _fail(message: str, code: int = EXIT_ERROR) -> typer.Exit:
@@ -237,7 +238,8 @@ def scan(
             with output.open("w", encoding="utf-8") as handle:
                 Console(file=handle, width=160, highlight=False).print(reports.scan_report(result))
         else:
-            _out().print(reports.scan_report(result))
+            out = _out()
+            out.print(reports.scan_report(result, compact=out.width < _WIDE))
     else:
         text = service.export_scan(result, "json" if fmt is ScanFormat.json else "csv")
         if output is not None:
@@ -397,7 +399,7 @@ def clean(
         out.print(reports.scan_report(result))
         return
 
-    out.print(reports.scan_report(result, numbered=interactive))
+    out.print(reports.scan_report(result, numbered=interactive, compact=out.width < _WIDE))
     out.print()
 
     if interactive:
@@ -500,7 +502,7 @@ def config_init(
         raise _fail(f"{exc} already exists. Use --force to overwrite it.") from None
     except OSError as exc:
         raise _fail(f"could not write the config file: {exc}") from exc
-    _out().print(f"Created {target}", markup=False)
+    typer.echo(f"Created {target}")
 
 
 @config_app.command("path")
@@ -514,7 +516,7 @@ def config_where() -> None:
 
 @app.command()
 def tui(
-    path: Annotated[Path, typer.Argument(help="Directory to scan.", metavar="PATH")] = Path("."),
+    path: Annotated[Path, typer.Argument(help="Directory to scan.")] = Path("."),
     recursive: RecursiveOption = False,
 ) -> None:
     """Browse and clean artifacts in a full-screen terminal interface."""

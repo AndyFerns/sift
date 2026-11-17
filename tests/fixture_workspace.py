@@ -16,9 +16,9 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 IGNORE_TEXT = "# excluded from every scan\nignored-project/\n"
-BIG_PACKAGES = 20
-BIG_FILES_PER_PACKAGE = 30
-BIG_FILE_SIZE = 100
+BIG_PACKAGES = 10
+BIG_FILES_PER_PACKAGE = 10
+BIG_FILE_SIZE = 300
 
 
 @dataclass(frozen=True)
@@ -463,7 +463,7 @@ def build_workspace(root: Path) -> Workspace:
     _write(root / "ignored-project/node_modules/.package-lock.json", 100)
     _write(root / "ignored-project/node_modules/a/index.js", 100)
 
-    # --- A large directory -----------------------------------------------------------
+    # --- The largest artifact: many small files -------------------------------------
     b.source("big/package.json", '{"name": "big"}\n')
     big: dict[str, int | bytes] = {".package-lock.json": 10}
     for package in range(BIG_PACKAGES):

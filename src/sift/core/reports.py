@@ -76,6 +76,11 @@ def format_bytes(value: int | None) -> str:
     return f"{tenths // 10}.{tenths % 10} {_UNITS[index]}"
 
 
+def count(number: int, singular: str, plural: str | None = None) -> str:
+    """``1 artifact``, ``2 artifacts``."""
+    return f"{number:,} {singular if number == 1 else plural or singular + 's'}"
+
+
 def describe_size(size: SizeInfo | None) -> str:
     if size is None:
         return "not measured"
@@ -95,7 +100,7 @@ def describe_allocated(size: SizeInfo | None) -> str:
 def status_label(artifact: Artifact) -> str:
     if artifact.cleanable:
         return "cleanable"
-    return "review" if artifact.ambiguous else "below threshold"
+    return "review" if artifact.ambiguous else "low confidence"
 
 
 # --- machine-readable -------------------------------------------------------------------
@@ -166,31 +171,39 @@ def _confidence(artifact: Artifact) -> Text:
     return text
 
 
-def scan_table(result: ScanResult, *, numbered: bool = False, limit: int | None = None) -> Table:
+def scan_table(
+    result: ScanResult,
+    *,
+    numbered: bool = False,
+    limit: int | None = None,
+    compact: bool = False,
+) -> Table:
+    """One row per artifact. ``compact`` drops columns so the table fits 80 characters."""
     table = Table(box=None, pad_edge=False, header_style="bold")
     if numbered:
-        table.add_column("#", justify="right", style="dim")
+        table.add_column("#", justify="right", style="dim", no_wrap=True)
     table.add_column("ID", style="dim", no_wrap=True)
-    table.add_column("Path", overflow="fold")
+    table.add_column("Path", overflow="fold", min_width=16)
     table.add_column("Type", no_wrap=True)
-    table.add_column("Confidence", no_wrap=True)
+    if not compact:
+        table.add_column("Confidence", no_wrap=True)
     table.add_column("Status", no_wrap=True)
     table.add_column("Size", justify="right", no_wrap=True)
-    table.add_column("On disk", justify="right", no_wrap=True)
-    table.add_column("Files", justify="right", no_wrap=True)
+    if not compact:
+        table.add_column("On disk", justify="right", no_wrap=True)
+        table.add_column("Files", justify="right", no_wrap=True)
     shown = result.artifacts if limit is None else result.artifacts[:limit]
     for index, artifact in enumerate(shown, start=1):
-        status = status_label(artifact)
-        row: list[RenderableType] = [
-            artifact.id,
-            escape(artifact.relative_path),
-            artifact.rule,
-            _confidence(artifact),
-            Text(status, style="green" if artifact.cleanable else "yellow"),
-            describe_size(artifact.size),
-            describe_allocated(artifact.size),
-            f"{artifact.size.file_count:,}" if artifact.size else "-",
-        ]
+        status = Text(status_label(artifact), style="green" if artifact.cleanable else "yellow")
+        if compact and artifact.ambiguous:
+            status.append(" ?", style="bold red")
+        row: list[RenderableType] = [artifact.id, escape(artifact.relative_path), artifact.rule]
+        if not compact:
+            row.append(_confidence(artifact))
+        row += [status, describe_size(artifact.size)]
+        if not compact:
+            row.append(describe_allocated(artifact.size))
+            row.append(f"{artifact.size.file_count:,}" if artifact.size else "-")
         if numbered:
             row.insert(0, str(index))
         table.add_row(*row)
@@ -201,14 +214,14 @@ def scan_summary(result: ScanResult) -> Text:
     totals = result.totals
     stats = result.stats
     text = Text()
-    text.append(f"{totals.artifact_count} artifacts", style="bold")
+    text.append(count(totals.artifact_count, "artifact"), style="bold")
     text.append(f" in {escape(result.root)}\n")
     text.append(f"  detected   {format_bytes(totals.logical_bytes):>11}")
     if totals.allocated_bytes is not None:
         text.append(f"   on disk {format_bytes(totals.allocated_bytes):>11}")
-    text.append(f"   {totals.file_count:,} files\n")
+    text.append(f"   {count(totals.file_count, 'file')}\n")
     text.append(f"  cleanable  {format_bytes(totals.cleanable_logical_bytes):>11}", style="green")
-    text.append(f"   {totals.cleanable_count} artifacts\n", style="green")
+    text.append(f"   {count(totals.cleanable_count, 'artifact')}\n", style="green")
     ambiguous = sum(1 for a in result.artifacts if a.ambiguous)
     below = totals.review_count - ambiguous
     if ambiguous:
@@ -222,7 +235,8 @@ def scan_summary(result: ScanResult) -> Text:
     if unmeasured:
         text.append(f"  {unmeasured} not measured; totals exclude them\n", style="yellow")
     text.append(
-        f"  scanned {stats.directories_visited:,} directories in {stats.total_ms:.0f} ms "
+        f"  scanned {count(stats.directories_visited, 'directory', 'directories')} "
+        f"in {stats.total_ms:.0f} ms "
         f"(discovery {stats.discovery_ms:.0f} ms, sizing {stats.sizing_ms:.0f} ms)",
         style="dim",
     )
@@ -243,11 +257,13 @@ def issues_text(result: ScanResult, *, limit: int = 10) -> Text | None:
     return text
 
 
-def scan_report(result: ScanResult, *, numbered: bool = False) -> RenderableType:
+def scan_report(
+    result: ScanResult, *, numbered: bool = False, compact: bool = False
+) -> RenderableType:
     """The full terminal report for a scan."""
     parts: list[RenderableType] = []
     if result.artifacts:
-        parts.append(scan_table(result, numbered=numbered))
+        parts.append(scan_table(result, numbered=numbered, compact=compact))
         parts.append(Text())
     else:
         parts.append(Text("No development artifacts found.", style="bold"))
@@ -308,12 +324,13 @@ def plan_report(plan: CleanupPlan) -> RenderableType:
     totals = plan.totals
     summary = Text()
     summary.append(f"\n  detected  {format_bytes(totals.detected_bytes):>11}")
-    summary.append(f"   {totals.detected_count} artifacts in the scan\n")
+    summary.append(f"   {count(totals.detected_count, 'artifact')} in the scan\n")
     summary.append(f"  selected  {format_bytes(totals.selected_bytes):>11}")
-    summary.append(f"   {totals.selected_count} artifacts\n")
+    summary.append(f"   {count(totals.selected_count, 'artifact')}\n")
     summary.append(
         f"  to delete {format_bytes(totals.deletable_bytes):>11}"
-        f"   {totals.deletable_count} artifacts, {totals.deletable_file_count:,} files",
+        f"   {count(totals.deletable_count, 'artifact')}, "
+        f"{count(totals.deletable_file_count, 'file')}",
         style="bold",
     )
     parts.append(summary)
@@ -350,17 +367,17 @@ def cleanup_report(result: CleanupResult) -> RenderableType:
         )
     summary.append(
         f"  deleted       {format_bytes(totals.deleted_bytes):>11}"
-        f"   {totals.deleted_count} artifacts\n",
+        f"   {count(totals.deleted_count, 'artifact')}\n",
         style="green" if totals.deleted_bytes else "",
     )
     summary.append(
         f"  failed        {format_bytes(totals.failed_bytes):>11}"
-        f"   {totals.failed_count} artifacts\n",
+        f"   {count(totals.failed_count, 'artifact')}\n",
         style="red" if totals.failed_count else "",
     )
     summary.append(
         f"  refused       {format_bytes(totals.refused_bytes):>11}"
-        f"   {totals.refused_count} artifacts",
+        f"   {count(totals.refused_count, 'artifact')}",
         style="yellow" if totals.refused_count else "",
     )
     parts: list[RenderableType] = [table, summary]
