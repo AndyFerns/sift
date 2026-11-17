@@ -579,3 +579,23 @@ def test_stats_record_timings(workspace_ro: Workspace) -> None:
     assert stats.directories_visited > 0
     assert stats.total_ms >= stats.discovery_ms >= 0
     assert stats.total_ms >= stats.sizing_ms >= 0
+
+
+def test_names_that_are_not_valid_unicode_are_skipped_not_fatal(tmp_path: Path) -> None:
+    """Such a path cannot be reported exactly, so it must never become a cleanup target."""
+    odd = tmp_path / "odd-\udcff-project"
+    try:
+        (odd / "node_modules" / "dep").mkdir(parents=True)
+        (odd / "package.json").write_text("{}")
+    except (OSError, UnicodeError):
+        pytest.skip("this filesystem refuses names that are not valid Unicode")
+    normal = tmp_path / "normal"
+    (normal / "node_modules" / "dep").mkdir(parents=True)
+    (normal / "package.json").write_text("{}")
+
+    result = scan(tmp_path)
+    assert sorted(by_path(result)) == ["normal/node_modules"]
+    skipped = [i for i in result.issues if "not valid Unicode" in i.message]
+    assert len(skipped) == 1
+    assert skipped[0].kind == "error"
+    result.model_dump_json()  # the whole result must still serialise

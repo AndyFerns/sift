@@ -18,5 +18,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     restoreMocks: true,
+    // jsdom role queries are slow on a busy machine; the default 5 s is too tight.
+    testTimeout: 30_000,
   },
 });

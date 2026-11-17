@@ -23,10 +23,11 @@ describe("Explorer", () => {
     renderApp(<Explorer />);
     await loaded();
 
-    expect(rows().map((row) => row.dataset.artifact)).toEqual(scan.artifacts.map((a) => a.id));
+    const shown = rows();
+    expect(shown.map((row) => row.dataset.artifact)).toEqual(scan.artifacts.map((a) => a.id));
     for (const artifact of scan.artifacts) {
-      const row = rows().find((r) => r.dataset.artifact === artifact.id)!;
-      const cells = within(row).getAllByRole("cell");
+      const row = shown.find((r) => r.dataset.artifact === artifact.id)!;
+      const cells = [...row.querySelectorAll("td")];
       expect(cells[1]!.textContent).toBe(artifact.relative_path);
       expect(cells[2]!.textContent).toBe(artifact.rule);
       expect(cells[3]!.textContent).toBe(artifact.confidence + (artifact.ambiguous ? " ?" : ""));
