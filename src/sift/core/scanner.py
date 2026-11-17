@@ -2,8 +2,9 @@
 
 Scanning is strictly read-only and happens in two phases.
 
-**Discovery** walks the tree from the scan root with ``os.scandir``. Whenever it meets an
-entry whose name a detector cares about, the detector decides whether it is an artifact.
+**Discovery** walks the tree from the scan root with ``os.scandir``, level by level.
+Whenever it meets an entry whose name a detector cares about, the detector decides whether
+it is an artifact.
 The walk never descends into an artifact, never follows a symlink or junction, and never
 enters version-control metadata, so it only ever reads source directories. This is what
 keeps discovery fast even when the artifacts themselves hold millions of files.
@@ -24,12 +25,20 @@ import os
 import secrets
 import time
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Literal
 
 from sift.core import sizing
-from sift.core.detectors import PROJECT_MANIFESTS, Candidate, Detection, RuleSet, list_dir
+from sift.core.detectors import (
+    PROJECT_MANIFESTS,
+    Candidate,
+    Detection,
+    DirListing,
+    RuleSet,
+    list_dir,
+)
 from sift.core.ignore import (
     IGNORE_FILE,
     IgnoreLayer,
@@ -52,6 +61,8 @@ from sift.core.models import (
 # Version-control metadata is never an artifact and never worth walking.
 _NEVER_ENTER = frozenset({".git", ".hg", ".svn"})
 _PROGRESS_EVERY = 200
+_LIST_THREADS = 4
+_PARALLEL_FROM = 8  # below this many directories a thread pool costs more than it saves
 
 
 class ScanError(Exception):
@@ -110,6 +121,17 @@ def _relative(path: str, root: str) -> str:
     return "." if relative == "." else relative
 
 
+_Pending = tuple[str, int, int, tuple[IgnoreLayer, ...]]
+
+
+def _try_list(path: str) -> DirListing | OSError:
+    """List one directory, handing back the error instead of raising it."""
+    try:
+        return list_dir(path)
+    except OSError as exc:
+        return exc
+
+
 class _Discovery:
     def __init__(
         self,
@@ -136,78 +158,98 @@ class _Discovery:
             layers = (configured,)
 
         # (directory, depth, index of owning project, active ignore layers)
-        stack: list[tuple[str, int, int, tuple[IgnoreLayer, ...]]] = [(self.root, 0, -1, layers)]
-        max_depth = self.options.max_depth
-        dir_rules = self.ruleset.dir_rules
+        level: list[_Pending] = [(self.root, 0, -1, layers)]
+        pool: ThreadPoolExecutor | None = None
+        try:
+            # Breadth-first, one level at a time. Reading a directory is mostly waiting on
+            # the operating system, so a level's directories are listed in parallel; the
+            # listings are then examined here, in order, on one thread.
+            while level:
+                paths = [item[0] for item in level]
+                if len(paths) >= _PARALLEL_FROM:
+                    if pool is None:
+                        pool = ThreadPoolExecutor(_LIST_THREADS, thread_name_prefix="sift-scan")
+                    listings = list(pool.map(_try_list, paths))
+                else:
+                    listings = [_try_list(path) for path in paths]
+                following: list[_Pending] = []
+                for item, listing in zip(level, listings, strict=True):
+                    self._visit(item, listing, following)
+                level = following
+        finally:
+            if pool is not None:
+                pool.shutdown()
+
+    def _visit(
+        self, item: _Pending, listing: DirListing | OSError, following: list[_Pending]
+    ) -> None:
+        path, depth, owner, layers = item
+        if isinstance(listing, PermissionError):
+            self._issue("permission", path, f"permission denied: {listing.strerror or listing}")
+            return
+        if isinstance(listing, FileNotFoundError | NotADirectoryError):
+            self._issue("vanished", path, "disappeared while scanning")
+            return
+        if isinstance(listing, OSError):
+            self._issue("error", path, f"could not be read: {listing.strerror or listing}")
+            return
+
+        is_repository = ".git" in listing.dirs or ".git" in listing.files
+        if depth > 0 and is_repository and not self.options.recursive:
+            self._issue(
+                "nested-repository",
+                path,
+                "nested repository skipped; use a recursive scan to include it",
+            )
+            return
+
+        self.visited += 1
+        self.links_skipped += len(listing.links)
+        if self.progress is not None and self.visited % _PROGRESS_EVERY == 0:
+            self.progress(
+                ScanProgress("discovery", self.visited, len(self.artifacts), current=path)
+            )
+
+        manifests = [name for name in PROJECT_MANIFESTS if name in listing.files]
+        if depth == 0 or is_repository or manifests:
+            self.projects.append(_ProjectState(path, is_repository, manifests))
+            owner = len(self.projects) - 1
+
+        if IGNORE_FILE in listing.files:
+            extra = load_ignore_file(path)
+            if extra is not None:
+                layers = (*layers, extra)
+
         file_rules = self.ruleset.file_rules
-
-        while stack:
-            path, depth, owner, layers = stack.pop()
-            try:
-                listing = list_dir(path)
-            except PermissionError as exc:
-                self._issue("permission", path, f"permission denied: {exc.strerror or exc}")
-                continue
-            except (FileNotFoundError, NotADirectoryError):
-                self._issue("vanished", path, "disappeared while scanning")
-                continue
-            except OSError as exc:
-                self._issue("error", path, f"could not be read: {exc.strerror or exc}")
-                continue
-
-            is_repository = ".git" in listing.dirs or ".git" in listing.files
-            if depth > 0 and is_repository and not self.options.recursive:
-                self._issue(
-                    "nested-repository",
-                    path,
-                    "nested repository skipped; use a recursive scan to include it",
-                )
-                continue
-
-            self.visited += 1
-            self.links_skipped += len(listing.links)
-            if self.progress is not None and self.visited % _PROGRESS_EVERY == 0:
-                self.progress(
-                    ScanProgress("discovery", self.visited, len(self.artifacts), current=path)
-                )
-
-            manifests = [name for name in PROJECT_MANIFESTS if name in listing.files]
-            if depth == 0 or is_repository or manifests:
-                self.projects.append(_ProjectState(path, is_repository, manifests))
-                owner = len(self.projects) - 1
-
-            if IGNORE_FILE in listing.files:
-                extra = load_ignore_file(path)
-                if extra is not None:
-                    layers = (*layers, extra)
-
-            if file_rules:
-                for name in listing.files:
-                    if name not in file_rules:
-                        continue
-                    child = os.path.join(path, name)
-                    if layers and is_ignored(layers, child, False):
-                        self.excluded += 1
-                        continue
-                    detection = self.ruleset.classify(Candidate(child, name, False, listing))
-                    if detection is not None:
-                        self._record(detection, owner)
-
-            for name in listing.dirs:
-                if name in _NEVER_ENTER:
+        if file_rules:
+            for name in listing.files:
+                if name not in file_rules:
                     continue
                 child = os.path.join(path, name)
-                if layers and is_ignored(layers, child, True):
+                if layers and is_ignored(layers, child, False):
                     self.excluded += 1
                     continue
-                if name in dir_rules:
-                    detection = self.ruleset.classify(Candidate(child, name, True, listing))
-                    if detection is not None:
-                        # An artifact is opaque: nothing inside it is examined.
-                        self._record(detection, owner)
-                        continue
-                if max_depth is None or depth < max_depth:
-                    stack.append((child, depth + 1, owner, layers))
+                detection = self.ruleset.classify(Candidate(child, name, False, listing))
+                if detection is not None:
+                    self._record(detection, owner)
+
+        dir_rules = self.ruleset.dir_rules
+        max_depth = self.options.max_depth
+        for name in listing.dirs:
+            if name in _NEVER_ENTER:
+                continue
+            child = os.path.join(path, name)
+            if layers and is_ignored(layers, child, True):
+                self.excluded += 1
+                continue
+            if name in dir_rules:
+                detection = self.ruleset.classify(Candidate(child, name, True, listing))
+                if detection is not None:
+                    # An artifact is opaque: nothing inside it is examined.
+                    self._record(detection, owner)
+                    continue
+            if max_depth is None or depth < max_depth:
+                following.append((child, depth + 1, owner, layers))
 
     def _issue(self, kind: IssueKind, path: str, message: str) -> None:
         self.issues.append(ScanIssue(kind=kind, path=printable(path), message=message))

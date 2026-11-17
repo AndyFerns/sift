@@ -26,6 +26,7 @@ ambiguous. Ambiguous artifacts are reported for review and are never cleanable.
 from __future__ import annotations
 
 import os
+import stat
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from typing import Literal
@@ -63,14 +64,16 @@ def list_dir(path: str, *, limit: int | None = None) -> DirListing:
         for count, entry in enumerate(entries):
             if limit is not None and count >= limit:
                 break
-            if is_link(entry):
-                links.add(entry.name)
-                continue
             try:
-                is_dir = entry.is_dir(follow_symlinks=False)
+                if entry.is_dir(follow_symlinks=False):
+                    # On Windows a junction looks like a directory until you ask.
+                    (links if entry.is_junction() else dirs).add(entry.name)
+                elif entry.is_symlink():
+                    links.add(entry.name)
+                else:
+                    files.add(entry.name)
             except OSError:
                 continue
-            (dirs if is_dir else files).add(entry.name)
     return DirListing(path, frozenset(files), frozenset(dirs), frozenset(links))
 
 
@@ -97,6 +100,23 @@ class Candidate:
                 except OSError:
                     self._children = DirListing(self.path, frozenset(), frozenset())
         return self._children
+
+    def has(self, name: str, *, directory: bool = False) -> bool:
+        """Is there a real (non-link) entry called ``name`` directly inside?
+
+        Asks the filesystem about that one name instead of listing the whole candidate,
+        which matters when the candidate is a ``node_modules`` with thousands of entries.
+        """
+        if self._children is not None:
+            inside = self._children
+            return name in inside.dirs or (not directory and name in inside.files)
+        try:
+            mode = os.lstat(os.path.join(self.path, name)).st_mode
+        except OSError:
+            return False
+        if stat.S_ISLNK(mode):
+            return False
+        return stat.S_ISDIR(mode) if directory else True
 
 
 Check = Callable[[Candidate], Evidence | None]
@@ -132,7 +152,7 @@ class Rule:
 
         path = candidate.path
         if self.subpath is not None:
-            if self.subpath not in candidate.children().dirs:
+            if not candidate.has(self.subpath, directory=True):
                 return None
             path = os.path.join(candidate.path, self.subpath)
 
@@ -177,10 +197,9 @@ class Rule:
     def _find_marker(self, candidate: Candidate, evidence: list[Evidence]) -> bool:
         found = False
         if self.markers or self.marker_suffixes:
-            inside = candidate.children()
-            names = inside.files | inside.dirs
-            hits = [name for name in self.markers if name in names]
+            hits = [name for name in self.markers if candidate.has(name)]
             if not hits and self.marker_suffixes:
+                inside = candidate.children()
                 hits = sorted(n for n in inside.files if n.endswith(self.marker_suffixes))[:1]
             for name in hits[:3]:
                 evidence.append(
