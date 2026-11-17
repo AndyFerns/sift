@@ -22,7 +22,9 @@ SHARED = Path(__file__).parent / "shared" / "format_bytes.json"
 
 
 def render(renderable: object) -> str:
-    console = Console(width=200, record=True, color_system=None, force_terminal=False)
+    console = Console(
+        width=200, record=True, color_system=None, force_terminal=False, file=io.StringIO()
+    )
     console.print(renderable)
     return console.export_text()
 

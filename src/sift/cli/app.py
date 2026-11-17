@@ -35,7 +35,7 @@ from sift.core.config import (
     write_default_config,
 )
 from sift.core.models import CleanupItem, Confidence, ScanResult
-from sift.core.scanner import ScanProgress
+from sift.core.scanner import ScanProgress, resolve_root
 from sift.core.service import ArtifactNotFound, ScanError, SiftService, UnsafeOperation
 
 EXIT_OK = 0
@@ -520,9 +520,14 @@ def tui(
     recursive: RecursiveOption = False,
 ) -> None:
     """Browse and clean artifacts in a full-screen terminal interface."""
-    _service()
-    del path, recursive
-    raise _fail("the terminal interface is not implemented yet")
+    service = _service()
+    try:
+        resolve_root(path)
+    except ScanError as exc:
+        raise _fail(str(exc), EXIT_USAGE) from exc
+    from sift.tui.app import SiftApp
+
+    SiftApp(service, path, recursive=recursive).run()
 
 
 @app.command()
