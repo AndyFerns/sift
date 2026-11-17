@@ -33,6 +33,10 @@ is supported.
 a few bytes of specific well-known files to confirm what they are. It never executes
 anything it finds.
 
+**Helper processes.** To measure very large trees Sift may start a few copies of its own
+Python interpreter running one small standard-library-only script. They list directories and
+read file sizes, nothing else, and exit when the scan ends.
+
 **Nothing is deleted automatically.** Deletion needs an explicit selection, a preview
 listing exactly what will be removed, and a confirmation. There is no flag to skip these.
 The core refuses to run a cleanup without the confirmation token issued for that exact
@@ -64,5 +68,10 @@ configured scan roots. Scan roots cannot be changed through the API.
   impossible.
 - **Hard links.** On Windows, files with several hard links (for example pnpm stores) are
   counted at full size, so the space actually freed can be lower than reported.
+- **Untested paths.** The symlink and POSIX-permission tests have not been run yet: they are
+  skipped on Windows, where the suite has been run, and the CI workflow has not executed.
+  Junctions and simulated permission errors are tested on Windows.
+- **Unusual file names.** A path that is not valid Unicode is reported as skipped and can
+  never become a cleanup target.
 - **Same-user threats are out of scope.** Software already running as you can delete your
   files without Sift's help.

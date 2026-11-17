@@ -23,6 +23,10 @@ classifiers = [
     "Topic :: System :: Filesystems",
     "Typing :: Typed",
 ]
+# Developed and tested against the versions current in November 2026: pydantic 2.14,
+# typer 0.29, rich 15.0, textual 8.2, fastapi 0.163, uvicorn 0.54, pathspec 1.1,
+# platformdirs 4.14, tomli-w 1.2. Older versions are untested, so no lower bounds are
+# claimed beyond Pydantic 2.
 dependencies = [
     "pydantic>=2",
     "typer",

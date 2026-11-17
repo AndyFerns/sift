@@ -85,6 +85,15 @@ CI runs the same commands on Linux, macOS and Windows.
 - Do not mock the scanner to make an interface test pass, and do not put made-up numbers
   in the dashboard.
 
+**The dashboard and the API**
+
+- API types in `web/src/api/schema.ts` are generated. After changing a Pydantic model that
+  the API returns, run `python scripts/gen_api_types.py`; a test fails if you forget.
+- The dashboard tests render responses recorded from the real API. After changing the
+  fixture workspace or what a scan returns, run `python scripts/record_fixture_scan.py`.
+- Sizes are formatted identically in Python and TypeScript. Both are tested against
+  `tests/shared/format_bytes.json`; add cases there rather than in one language only.
+
 **Honesty in docs**
 
 - The README separates what is implemented from what is planned. Keep it that way.
