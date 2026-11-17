@@ -150,7 +150,10 @@ class _Helper:
     """One helper process running :mod:`sift.core._walker`."""
 
     def __init__(self) -> None:
-        flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
+        # A statement-level platform check: mypy cannot narrow one inside an expression.
+        flags = 0
+        if sys.platform == "win32":
+            flags = subprocess.CREATE_NO_WINDOW
         # -I and -S: the helper needs only the standard library, so skip site-packages
         # and anything the environment could inject. It starts faster that way too.
         self._process = subprocess.Popen(

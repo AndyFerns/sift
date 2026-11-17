@@ -609,3 +609,36 @@ async def test_artifact_that_changed_is_refused_at_execution(project: Path) -> N
         assert isinstance(app.screen, ResultScreen)
         assert [i.status for i in app.screen.result.items] == [CleanupStatus.REFUSED]
         assert (project / "node" / "node_modules" / "dep" / "index.js").exists()
+
+
+async def test_late_widget_messages_after_teardown_are_ignored(workspace_ro: Workspace) -> None:
+    """Regression: a RowHighlighted handled after the widgets were removed crashed the app.
+
+    It showed up on CI as a NoMatches error while a test's app was shutting down: the
+    message had already bubbled up to the app when the screen's widgets went away.
+    """
+    app = SiftApp(SiftService(), workspace_ro.root)
+    async with app.run_test(size=SIZE) as pilot:
+        await settle(app, pilot)
+        table = app.query_one("#artifacts", DataTable)
+        projects = app.query_one("#projects", OptionList)
+        filter_box = app.query_one("#filter", Input)
+        row_key = table.coordinate_to_cell_key((0, 0)).row_key
+        option = projects.get_option_at_index(1)
+        await app.query_one("#main").remove()
+        await app.query_one("#sidebar").remove()
+        await pilot.pause()
+
+        # The handlers, exactly as the message dispatcher calls them.
+        app._row_highlighted()
+        app._project_highlighted(OptionList.OptionHighlighted(projects, option, 1))
+        app._filter_changed(Input.Changed(filter_box, "rust"))
+        app._filter_submitted()
+
+        # And through the app's own queue, where the CI failure happened.
+        app.post_message(DataTable.RowHighlighted(table, 0, row_key))
+        app.post_message(OptionList.OptionHighlighted(projects, option, 1))
+        app.post_message(Input.Changed(filter_box, "rust"))
+        await pilot.pause()
+        await pilot.pause()
+        assert app._exception is None

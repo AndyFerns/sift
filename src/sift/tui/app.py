@@ -365,9 +365,18 @@ class SiftApp(App[None]):
 
     # --- events -------------------------------------------------------------------------
 
+    def _ui_ready(self) -> bool:
+        """Whether the main widgets are on screen.
+
+        Widget messages can still be delivered while the app is shutting down, after the
+        widgets they refer to have been removed. Handlers check this first and do nothing.
+        """
+        return bool(self.query("#detail")) and bool(self.query("#artifacts"))
+
     @on(DataTable.RowHighlighted, "#artifacts")
     def _row_highlighted(self) -> None:
-        self._update_detail()
+        if self._ui_ready():
+            self._update_detail()
 
     @on(DataTable.RowSelected, "#artifacts")
     def _row_selected(self) -> None:
@@ -377,7 +386,7 @@ class SiftApp(App[None]):
 
     @on(OptionList.OptionHighlighted, "#projects")
     def _project_highlighted(self, event: OptionList.OptionHighlighted) -> None:
-        if self.result is None or event.option.id is None:
+        if self.result is None or event.option.id is None or not self._ui_ready():
             return
         if event.option.id == ALL_PROJECTS:
             chosen = None
@@ -390,11 +399,13 @@ class SiftApp(App[None]):
     @on(Input.Changed, "#filter")
     def _filter_changed(self, event: Input.Changed) -> None:
         self.text_filter = event.value
-        self.refresh_table()
+        if self._ui_ready():
+            self.refresh_table()
 
     @on(Input.Submitted, "#filter")
     def _filter_submitted(self) -> None:
-        self.query_one("#artifacts", DataTable).focus()
+        if self._ui_ready():
+            self.query_one("#artifacts", DataTable).focus()
 
     # --- actions ------------------------------------------------------------------------
 
