@@ -555,8 +555,9 @@ def serve(
             f"({', '.join(sorted(LOOPBACK_HOSTS))})",
             EXIT_USAGE,
         )
-    del bind_port, open_browser
-    raise _fail("the web dashboard is not implemented yet")
+    from sift.api.server import run_server
+
+    run_server(service, bind_host, bind_port, open_browser=open_browser)
 
 
 def main() -> None:
