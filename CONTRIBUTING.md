@@ -43,7 +43,14 @@ npm run typecheck
 npm test
 ```
 
-CI runs the same commands on Linux, macOS and Windows.
+CI runs the same commands on Linux, macOS and Windows. Some code is platform-specific, and
+mypy only checks the branches for the platform it runs on, so also check the other two:
+
+```bash
+mypy --platform linux
+mypy --platform darwin
+mypy --platform win32
+```
 
 ## How the code is organised
 
