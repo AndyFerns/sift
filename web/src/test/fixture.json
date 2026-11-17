@@ -1,0 +1,1912 @@
+{
+  "_note": "Recorded from the real API by scripts/record_fixture_scan.py. Do not edit.",
+  "config": {
+    "config_path": "C:\\sift-fixture-tmp\\config\\config.toml",
+    "config_exists": false,
+    "roots": [
+      "C:\\sift-fixture"
+    ],
+    "available_detectors": [
+      "rust",
+      "node",
+      "python",
+      "java",
+      "cpp",
+      "go",
+      "general"
+    ],
+    "config": {
+      "scan": {
+        "roots": [],
+        "exclude": [],
+        "max_depth": null,
+        "min_confidence": "medium",
+        "time_budget_seconds": null,
+        "workers": null
+      },
+      "detectors": {
+        "enabled": [
+          "rust",
+          "node",
+          "python",
+          "java",
+          "cpp",
+          "go",
+          "general"
+        ],
+        "go": {
+          "artifact_dirs": []
+        },
+        "custom": []
+      },
+      "history": {
+        "enabled": true,
+        "max_entries": 100
+      },
+      "server": {
+        "host": "127.0.0.1",
+        "port": 8765
+      }
+    }
+  },
+  "scan": {
+    "id": "20261117-073536-b815fa",
+    "root": "C:\\sift-fixture",
+    "started_at": "2026-11-17T07:35:36.348734Z",
+    "options": {
+      "recursive": true,
+      "max_depth": null,
+      "exclude": [],
+      "detectors": [
+        "rust",
+        "node",
+        "python",
+        "java",
+        "cpp",
+        "go",
+        "general"
+      ],
+      "min_confidence": "medium",
+      "measure": true,
+      "time_budget_seconds": null
+    },
+    "projects": [
+      {
+        "path": "C:\\sift-fixture\\big",
+        "relative_path": "big",
+        "name": "big",
+        "is_repository": false,
+        "manifests": [
+          "package.json"
+        ],
+        "ecosystems": [
+          "node"
+        ],
+        "artifact_ids": [
+          "a782800ece20"
+        ],
+        "logical_bytes": 30010,
+        "allocated_bytes": 413696
+      },
+      {
+        "path": "C:\\sift-fixture\\py-app",
+        "relative_path": "py-app",
+        "name": "py-app",
+        "is_repository": false,
+        "manifests": [
+          "pyproject.toml"
+        ],
+        "ecosystems": [
+          "python",
+          "general"
+        ],
+        "artifact_ids": [
+          "0732f3d34c10",
+          "385f78809790",
+          "388c1be95593",
+          "a5d4e61f8cf7",
+          "a5fd8b665b16",
+          "cda642ed0c9d",
+          "de34f741b3a0",
+          "8484c4ff186e",
+          "6f11e0aadd49",
+          "9a11e89e411c"
+        ],
+        "logical_bytes": 24261,
+        "allocated_bytes": 81920
+      },
+      {
+        "path": "C:\\sift-fixture\\cpp-app",
+        "relative_path": "cpp-app",
+        "name": "cpp-app",
+        "is_repository": false,
+        "manifests": [
+          "CMakeLists.txt"
+        ],
+        "ecosystems": [
+          "cpp"
+        ],
+        "artifact_ids": [
+          "9d16469c43ca",
+          "74620648d0a8",
+          "0b206eea5388"
+        ],
+        "logical_bytes": 20300,
+        "allocated_bytes": 36864
+      },
+      {
+        "path": "C:\\sift-fixture\\node-app",
+        "relative_path": "node-app",
+        "name": "node-app",
+        "is_repository": false,
+        "manifests": [
+          "package.json"
+        ],
+        "ecosystems": [
+          "node",
+          "general"
+        ],
+        "artifact_ids": [
+          "eeb56cf1cfb5",
+          "7108b85f4a6f",
+          "148b02f38032",
+          "33768958727f",
+          "b1302abe7a4f",
+          "92dc6f764701",
+          "cfdb7900f04a"
+        ],
+        "logical_bytes": 19409,
+        "allocated_bytes": 61440
+      },
+      {
+        "path": "C:\\sift-fixture\\rust-app",
+        "relative_path": "rust-app",
+        "name": "rust-app",
+        "is_repository": false,
+        "manifests": [
+          "Cargo.toml"
+        ],
+        "ecosystems": [
+          "rust"
+        ],
+        "artifact_ids": [
+          "cb4f15df3d8b"
+        ],
+        "logical_bytes": 16307,
+        "allocated_bytes": 28672
+      },
+      {
+        "path": "C:\\sift-fixture\\java-gradle",
+        "relative_path": "java-gradle",
+        "name": "java-gradle",
+        "is_repository": false,
+        "manifests": [
+          "build.gradle.kts",
+          "settings.gradle.kts"
+        ],
+        "ecosystems": [
+          "java"
+        ],
+        "artifact_ids": [
+          "684949eb5131",
+          "3b70f29c7808"
+        ],
+        "logical_bytes": 12747,
+        "allocated_bytes": 24576
+      },
+      {
+        "path": "C:\\sift-fixture\\cpp-insource",
+        "relative_path": "cpp-insource",
+        "name": "cpp-insource",
+        "is_repository": false,
+        "manifests": [
+          "CMakeLists.txt"
+        ],
+        "ecosystems": [
+          "cpp"
+        ],
+        "artifact_ids": [
+          "42ba195c6950"
+        ],
+        "logical_bytes": 1900,
+        "allocated_bytes": 8192
+      },
+      {
+        "path": "C:\\sift-fixture\\java-maven",
+        "relative_path": "java-maven",
+        "name": "java-maven",
+        "is_repository": false,
+        "manifests": [
+          "pom.xml"
+        ],
+        "ecosystems": [
+          "java"
+        ],
+        "artifact_ids": [
+          "55fc11f57a75"
+        ],
+        "logical_bytes": 1530,
+        "allocated_bytes": 8192
+      },
+      {
+        "path": "C:\\sift-fixture\\nested\\outer\\inner",
+        "relative_path": "nested/outer/inner",
+        "name": "inner",
+        "is_repository": true,
+        "manifests": [
+          "Cargo.toml"
+        ],
+        "ecosystems": [
+          "rust"
+        ],
+        "artifact_ids": [
+          "9f0767e22356"
+        ],
+        "logical_bytes": 1377,
+        "allocated_bytes": 12288
+      },
+      {
+        "path": "C:\\sift-fixture\\nested\\outer",
+        "relative_path": "nested/outer",
+        "name": "outer",
+        "is_repository": true,
+        "manifests": [
+          "package.json"
+        ],
+        "ecosystems": [
+          "node"
+        ],
+        "artifact_ids": [
+          "8b744ef524d9"
+        ],
+        "logical_bytes": 1000,
+        "allocated_bytes": 8192
+      },
+      {
+        "path": "C:\\sift-fixture\\conflict",
+        "relative_path": "conflict",
+        "name": "conflict",
+        "is_repository": false,
+        "manifests": [
+          "Cargo.toml",
+          "pom.xml"
+        ],
+        "ecosystems": [
+          "rust",
+          "java"
+        ],
+        "artifact_ids": [
+          "c97ccc19f572"
+        ],
+        "logical_bytes": 500,
+        "allocated_bytes": 4096
+      },
+      {
+        "path": "C:\\sift-fixture",
+        "relative_path": ".",
+        "name": "fixture",
+        "is_repository": false,
+        "manifests": [],
+        "ecosystems": [],
+        "artifact_ids": [
+          "fd6c85ea7b8e",
+          "a2869d4e10aa",
+          "ddf6c322a2a8",
+          "76c4438ad84b",
+          "db7dacd71c80",
+          "05a3ae00340a"
+        ],
+        "logical_bytes": 330,
+        "allocated_bytes": 24576
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "a782800ece20",
+        "name": "node_modules",
+        "path": "C:\\sift-fixture\\big\\node_modules",
+        "relative_path": "big/node_modules",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.node_modules",
+        "category": "dependencies",
+        "description": "Installed npm packages (restored by your package manager's install)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\big\\package.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains .package-lock.json",
+            "path": "C:\\sift-fixture\\big\\node_modules\\.package-lock.json"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\big",
+        "size": {
+          "logical_bytes": 30010,
+          "allocated_bytes": 413696,
+          "allocated_method": "estimated",
+          "file_count": 101,
+          "dir_count": 20,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "cb4f15df3d8b",
+        "name": "target",
+        "path": "C:\\sift-fixture\\rust-app\\target",
+        "relative_path": "rust-app/target",
+        "kind": "directory",
+        "ecosystem": "rust",
+        "rule": "rust.target",
+        "category": "build-output",
+        "description": "Cargo build output (rebuilt by `cargo build`)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "Cargo.toml is next to it",
+            "path": "C:\\sift-fixture\\rust-app\\Cargo.toml"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains .rustc_info.json",
+            "path": "C:\\sift-fixture\\rust-app\\target\\.rustc_info.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CACHEDIR.TAG",
+            "path": "C:\\sift-fixture\\rust-app\\target\\CACHEDIR.TAG"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\rust-app",
+        "size": {
+          "logical_bytes": 16307,
+          "allocated_bytes": 28672,
+          "allocated_method": "estimated",
+          "file_count": 5,
+          "dir_count": 3,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "0732f3d34c10",
+        "name": "dist",
+        "path": "C:\\sift-fixture\\py-app\\dist",
+        "relative_path": "py-app/dist",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "general.dist",
+        "category": "build-output",
+        "description": "Distribution output (rebuilt by your build or packaging command)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains py_app-0.1.0-py3-none-any.whl",
+            "path": "C:\\sift-fixture\\py-app\\dist\\py_app-0.1.0-py3-none-any.whl"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 11000,
+          "allocated_bytes": 16384,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "9d16469c43ca",
+        "name": "build",
+        "path": "C:\\sift-fixture\\cpp-app\\build",
+        "relative_path": "cpp-app/build",
+        "kind": "directory",
+        "ecosystem": "cpp",
+        "rule": "cpp.build",
+        "category": "build-output",
+        "description": "CMake build tree (regenerated by configuring and building again)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "CMakeLists.txt is next to it",
+            "path": "C:\\sift-fixture\\cpp-app\\CMakeLists.txt"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CMakeCache.txt",
+            "path": "C:\\sift-fixture\\cpp-app\\build\\CMakeCache.txt"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CMakeFiles",
+            "path": "C:\\sift-fixture\\cpp-app\\build\\CMakeFiles"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\cpp-app",
+        "size": {
+          "logical_bytes": 10600,
+          "allocated_bytes": 16384,
+          "allocated_method": "estimated",
+          "file_count": 3,
+          "dir_count": 2,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "684949eb5131",
+        "name": "build",
+        "path": "C:\\sift-fixture\\java-gradle\\build",
+        "relative_path": "java-gradle/build",
+        "kind": "directory",
+        "ecosystem": "java",
+        "rule": "java.gradle-build",
+        "category": "build-output",
+        "description": "Gradle build output (rebuilt by `gradle build`)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "build.gradle.kts is next to it",
+            "path": "C:\\sift-fixture\\java-gradle\\build.gradle.kts"
+          },
+          {
+            "kind": "manifest",
+            "detail": "settings.gradle.kts is next to it",
+            "path": "C:\\sift-fixture\\java-gradle\\settings.gradle.kts"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains classes",
+            "path": "C:\\sift-fixture\\java-gradle\\build\\classes"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains libs",
+            "path": "C:\\sift-fixture\\java-gradle\\build\\libs"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains tmp",
+            "path": "C:\\sift-fixture\\java-gradle\\build\\tmp"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\java-gradle",
+        "size": {
+          "logical_bytes": 10525,
+          "allocated_bytes": 20480,
+          "allocated_method": "estimated",
+          "file_count": 3,
+          "dir_count": 6,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "eeb56cf1cfb5",
+        "name": ".next",
+        "path": "C:\\sift-fixture\\node-app\\.next",
+        "relative_path": "node-app/.next",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.next",
+        "category": "build-output",
+        "description": "Next.js build output and cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains BUILD_ID",
+            "path": "C:\\sift-fixture\\node-app\\.next\\BUILD_ID"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains cache",
+            "path": "C:\\sift-fixture\\node-app\\.next\\cache"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 8213,
+          "allocated_bytes": 12288,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 2,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "74620648d0a8",
+        "name": "cmake-build-debug",
+        "path": "C:\\sift-fixture\\cpp-app\\cmake-build-debug",
+        "relative_path": "cpp-app/cmake-build-debug",
+        "kind": "directory",
+        "ecosystem": "cpp",
+        "rule": "cpp.cmake-build",
+        "category": "build-output",
+        "description": "CLion/CMake build tree",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "CMakeLists.txt is next to it",
+            "path": "C:\\sift-fixture\\cpp-app\\CMakeLists.txt"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CMakeCache.txt",
+            "path": "C:\\sift-fixture\\cpp-app\\cmake-build-debug\\CMakeCache.txt"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\cpp-app",
+        "size": {
+          "logical_bytes": 6600,
+          "allocated_bytes": 12288,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "7108b85f4a6f",
+        "name": "dist",
+        "path": "C:\\sift-fixture\\node-app\\dist",
+        "relative_path": "node-app/dist",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "general.dist",
+        "category": "build-output",
+        "description": "Distribution output (rebuilt by your build or packaging command)",
+        "confidence": "low",
+        "ambiguous": false,
+        "cleanable": false,
+        "review_reason": "confidence is low, below the medium threshold",
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 5000,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "385f78809790",
+        "name": ".mypy_cache",
+        "path": "C:\\sift-fixture\\py-app\\.mypy_cache",
+        "relative_path": "py-app/.mypy_cache",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.mypy-cache",
+        "category": "cache",
+        "description": "mypy incremental cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CACHEDIR.TAG",
+            "path": "C:\\sift-fixture\\py-app\\.mypy_cache\\CACHEDIR.TAG"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 4191,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "388c1be95593",
+        "name": ".coverage",
+        "path": "C:\\sift-fixture\\py-app\\.coverage",
+        "relative_path": "py-app/.coverage",
+        "kind": "file",
+        "ecosystem": "general",
+        "rule": "general.coverage-data",
+        "category": "coverage",
+        "description": "coverage.py data file",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          },
+          {
+            "kind": "marker",
+            "detail": "is a coverage.py data file",
+            "path": "C:\\sift-fixture\\py-app\\.coverage"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 4096,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "a5d4e61f8cf7",
+        "name": ".venv",
+        "path": "C:\\sift-fixture\\py-app\\.venv",
+        "relative_path": "py-app/.venv",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.venv",
+        "category": "environment",
+        "description": "Python virtual environment (must be recreated and reinstalled)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains pyvenv.cfg",
+            "path": "C:\\sift-fixture\\py-app\\.venv\\pyvenv.cfg"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 3272,
+          "allocated_bytes": 16384,
+          "allocated_method": "estimated",
+          "file_count": 4,
+          "dir_count": 5,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "0b206eea5388",
+        "name": "cmake-build-release",
+        "path": "C:\\sift-fixture\\cpp-app\\cmake-build-release",
+        "relative_path": "cpp-app/cmake-build-release",
+        "kind": "directory",
+        "ecosystem": "cpp",
+        "rule": "cpp.cmake-build",
+        "category": "build-output",
+        "description": "CLion/CMake build tree",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "CMakeLists.txt is next to it",
+            "path": "C:\\sift-fixture\\cpp-app\\CMakeLists.txt"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CMakeCache.txt",
+            "path": "C:\\sift-fixture\\cpp-app\\cmake-build-release\\CMakeCache.txt"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\cpp-app",
+        "size": {
+          "logical_bytes": 3100,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "3b70f29c7808",
+        "name": ".gradle",
+        "path": "C:\\sift-fixture\\java-gradle\\.gradle",
+        "relative_path": "java-gradle/.gradle",
+        "kind": "directory",
+        "ecosystem": "java",
+        "rule": "java.gradle-cache",
+        "category": "cache",
+        "description": "Gradle project cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "build.gradle.kts is next to it",
+            "path": "C:\\sift-fixture\\java-gradle\\build.gradle.kts"
+          },
+          {
+            "kind": "manifest",
+            "detail": "settings.gradle.kts is next to it",
+            "path": "C:\\sift-fixture\\java-gradle\\settings.gradle.kts"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\java-gradle",
+        "size": {
+          "logical_bytes": 2222,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 2,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "148b02f38032",
+        "name": ".turbo",
+        "path": "C:\\sift-fixture\\node-app\\.turbo",
+        "relative_path": "node-app/.turbo",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.turbo",
+        "category": "cache",
+        "description": "Turborepo task cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 2000,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "42ba195c6950",
+        "name": "CMakeFiles",
+        "path": "C:\\sift-fixture\\cpp-insource\\CMakeFiles",
+        "relative_path": "cpp-insource/CMakeFiles",
+        "kind": "directory",
+        "ecosystem": "cpp",
+        "rule": "cpp.cmakefiles",
+        "category": "build-output",
+        "description": "CMake generated files from an in-source build",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "CMakeCache.txt is next to it",
+            "path": "C:\\sift-fixture\\cpp-insource\\CMakeCache.txt"
+          },
+          {
+            "kind": "manifest",
+            "detail": "CMakeLists.txt is next to it",
+            "path": "C:\\sift-fixture\\cpp-insource\\CMakeLists.txt"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CMakeOutput.log",
+            "path": "C:\\sift-fixture\\cpp-insource\\CMakeFiles\\CMakeOutput.log"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\cpp-insource",
+        "size": {
+          "logical_bytes": 1900,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "33768958727f",
+        "name": "node_modules",
+        "path": "C:\\sift-fixture\\node-app\\node_modules",
+        "relative_path": "node-app/node_modules",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.node_modules",
+        "category": "dependencies",
+        "description": "Installed npm packages (restored by your package manager's install)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains .package-lock.json",
+            "path": "C:\\sift-fixture\\node-app\\node_modules\\.package-lock.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains .bin",
+            "path": "C:\\sift-fixture\\node-app\\node_modules\\.bin"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 1896,
+          "allocated_bytes": 20480,
+          "allocated_method": "estimated",
+          "file_count": 5,
+          "dir_count": 4,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "55fc11f57a75",
+        "name": "target",
+        "path": "C:\\sift-fixture\\java-maven\\target",
+        "relative_path": "java-maven/target",
+        "kind": "directory",
+        "ecosystem": "java",
+        "rule": "java.maven-target",
+        "category": "build-output",
+        "description": "Maven build output (rebuilt by `mvn package`)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pom.xml is next to it",
+            "path": "C:\\sift-fixture\\java-maven\\pom.xml"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains maven-status",
+            "path": "C:\\sift-fixture\\java-maven\\target\\maven-status"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains classes",
+            "path": "C:\\sift-fixture\\java-maven\\target\\classes"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\java-maven",
+        "size": {
+          "logical_bytes": 1530,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 2,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "9f0767e22356",
+        "name": "target",
+        "path": "C:\\sift-fixture\\nested\\outer\\inner\\target",
+        "relative_path": "nested/outer/inner/target",
+        "kind": "directory",
+        "ecosystem": "rust",
+        "rule": "rust.target",
+        "category": "build-output",
+        "description": "Cargo build output (rebuilt by `cargo build`)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "Cargo.toml is next to it",
+            "path": "C:\\sift-fixture\\nested\\outer\\inner\\Cargo.toml"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains .rustc_info.json",
+            "path": "C:\\sift-fixture\\nested\\outer\\inner\\target\\.rustc_info.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CACHEDIR.TAG",
+            "path": "C:\\sift-fixture\\nested\\outer\\inner\\target\\CACHEDIR.TAG"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\nested\\outer\\inner",
+        "size": {
+          "logical_bytes": 1377,
+          "allocated_bytes": 12288,
+          "allocated_method": "estimated",
+          "file_count": 3,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "b1302abe7a4f",
+        "name": "coverage",
+        "path": "C:\\sift-fixture\\node-app\\coverage",
+        "relative_path": "node-app/coverage",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "general.coverage",
+        "category": "coverage",
+        "description": "Coverage report (regenerated by running tests with coverage)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains lcov.info",
+            "path": "C:\\sift-fixture\\node-app\\coverage\\lcov.info"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains lcov-report",
+            "path": "C:\\sift-fixture\\node-app\\coverage\\lcov-report"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 1300,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "8b744ef524d9",
+        "name": "node_modules",
+        "path": "C:\\sift-fixture\\nested\\outer\\node_modules",
+        "relative_path": "nested/outer/node_modules",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.node_modules",
+        "category": "dependencies",
+        "description": "Installed npm packages (restored by your package manager's install)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\nested\\outer\\package.json"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains .package-lock.json",
+            "path": "C:\\sift-fixture\\nested\\outer\\node_modules\\.package-lock.json"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\nested\\outer",
+        "size": {
+          "logical_bytes": 1000,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "a5fd8b665b16",
+        "name": "__pycache__",
+        "path": "C:\\sift-fixture\\py-app\\src\\pkg\\__pycache__",
+        "relative_path": "py-app/src/pkg/__pycache__",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.pycache",
+        "category": "cache",
+        "description": "Compiled bytecode cache (recreated on import)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "marker",
+            "detail": "contains only compiled bytecode",
+            "path": "C:\\sift-fixture\\py-app\\src\\pkg\\__pycache__"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 1000,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "92dc6f764701",
+        "name": "cache",
+        "path": "C:\\sift-fixture\\node-app\\.angular\\cache",
+        "relative_path": "node-app/.angular/cache",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.angular-cache",
+        "category": "cache",
+        "description": "Angular CLI build cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 700,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 2,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "c97ccc19f572",
+        "name": "target",
+        "path": "C:\\sift-fixture\\conflict\\target",
+        "relative_path": "conflict/target",
+        "kind": "directory",
+        "ecosystem": "rust",
+        "rule": "rust.target",
+        "category": "build-output",
+        "description": "Cargo build output (rebuilt by `cargo build`)",
+        "confidence": "medium",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "evidence points to both rust.target and java.maven-target",
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "Cargo.toml is next to it",
+            "path": "C:\\sift-fixture\\conflict\\Cargo.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "pom.xml is next to it",
+            "path": "C:\\sift-fixture\\conflict\\pom.xml"
+          },
+          {
+            "kind": "conflict",
+            "detail": "equally strong evidence for java.maven-target",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\conflict",
+        "size": {
+          "logical_bytes": 500,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "cfdb7900f04a",
+        "name": ".nuxt",
+        "path": "C:\\sift-fixture\\node-app\\.nuxt",
+        "relative_path": "node-app/.nuxt",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.nuxt",
+        "category": "build-output",
+        "description": "Nuxt build output",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "package.json is next to it",
+            "path": "C:\\sift-fixture\\node-app\\package.json"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\node-app",
+        "size": {
+          "logical_bytes": 300,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "cda642ed0c9d",
+        "name": ".ruff_cache",
+        "path": "C:\\sift-fixture\\py-app\\.ruff_cache",
+        "relative_path": "py-app/.ruff_cache",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.ruff-cache",
+        "category": "cache",
+        "description": "Ruff cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CACHEDIR.TAG",
+            "path": "C:\\sift-fixture\\py-app\\.ruff_cache\\CACHEDIR.TAG"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 299,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "de34f741b3a0",
+        "name": ".pytest_cache",
+        "path": "C:\\sift-fixture\\py-app\\.pytest_cache",
+        "relative_path": "py-app/.pytest_cache",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.pytest-cache",
+        "category": "cache",
+        "description": "pytest cache",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains CACHEDIR.TAG",
+            "path": "C:\\sift-fixture\\py-app\\.pytest_cache\\CACHEDIR.TAG"
+          },
+          {
+            "kind": "marker",
+            "detail": "contains v",
+            "path": "C:\\sift-fixture\\py-app\\.pytest_cache\\v"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 193,
+          "allocated_bytes": 8192,
+          "allocated_method": "estimated",
+          "file_count": 2,
+          "dir_count": 2,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "fd6c85ea7b8e",
+        "name": "build",
+        "path": "C:\\sift-fixture\\ambiguous\\build",
+        "relative_path": "ambiguous/build",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "unknown.build",
+        "category": "unknown",
+        "description": "Unconfirmed directory named 'build'",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "only the name matches; no manifest or marker confirms it",
+        "evidence": [
+          {
+            "kind": "name",
+            "detail": "the name could mean java.gradle-build, cpp.build, but nothing confirms any of them",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture",
+        "size": {
+          "logical_bytes": 100,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "a2869d4e10aa",
+        "name": "dist",
+        "path": "C:\\sift-fixture\\ambiguous\\dist",
+        "relative_path": "ambiguous/dist",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "general.dist",
+        "category": "build-output",
+        "description": "Distribution output (rebuilt by your build or packaging command)",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "only the name matches; no manifest or marker confirms it",
+        "evidence": [
+          {
+            "kind": "name",
+            "detail": "named 'dist', which is not proof",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture",
+        "size": {
+          "logical_bytes": 100,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "ddf6c322a2a8",
+        "name": "target",
+        "path": "C:\\sift-fixture\\ambiguous\\target",
+        "relative_path": "ambiguous/target",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "unknown.target",
+        "category": "unknown",
+        "description": "Unconfirmed directory named 'target'",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "only the name matches; no manifest or marker confirms it",
+        "evidence": [
+          {
+            "kind": "name",
+            "detail": "the name could mean rust.target, java.maven-target, but nothing confirms any of them",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture",
+        "size": {
+          "logical_bytes": 100,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "8484c4ff186e",
+        "name": ".nox",
+        "path": "C:\\sift-fixture\\py-app\\.nox",
+        "relative_path": "py-app/.nox",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.nox",
+        "category": "environment",
+        "description": "nox sessions (recreated by `nox`)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 80,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "6f11e0aadd49",
+        "name": ".tox",
+        "path": "C:\\sift-fixture\\py-app\\.tox",
+        "relative_path": "py-app/.tox",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.tox",
+        "category": "environment",
+        "description": "tox test environments (recreated by `tox`)",
+        "confidence": "high",
+        "ambiguous": false,
+        "cleanable": true,
+        "review_reason": null,
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 80,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 1,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "9a11e89e411c",
+        "name": "venv",
+        "path": "C:\\sift-fixture\\py-app\\venv",
+        "relative_path": "py-app/venv",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.venv",
+        "category": "environment",
+        "description": "Python virtual environment (must be recreated and reinstalled)",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "expected pyvenv.cfg inside, but it is missing",
+        "evidence": [
+          {
+            "kind": "manifest",
+            "detail": "pyproject.toml is next to it",
+            "path": "C:\\sift-fixture\\py-app\\pyproject.toml"
+          },
+          {
+            "kind": "manifest",
+            "detail": "noxfile.py is next to it",
+            "path": "C:\\sift-fixture\\py-app\\noxfile.py"
+          },
+          {
+            "kind": "name",
+            "detail": "named 'venv', which is not proof",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture\\py-app",
+        "size": {
+          "logical_bytes": 50,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "76c4438ad84b",
+        "name": "__pycache__",
+        "path": "C:\\sift-fixture\\ambiguous\\__pycache__",
+        "relative_path": "ambiguous/__pycache__",
+        "kind": "directory",
+        "ecosystem": "python",
+        "rule": "python.pycache",
+        "category": "cache",
+        "description": "Compiled bytecode cache (recreated on import)",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "expected its marker inside, but it is missing",
+        "evidence": [
+          {
+            "kind": "name",
+            "detail": "named '__pycache__', which is not proof",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture",
+        "size": {
+          "logical_bytes": 10,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "db7dacd71c80",
+        "name": "coverage",
+        "path": "C:\\sift-fixture\\ambiguous\\coverage",
+        "relative_path": "ambiguous/coverage",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "general.coverage",
+        "category": "coverage",
+        "description": "Coverage report (regenerated by running tests with coverage)",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "only the name matches; no manifest or marker confirms it",
+        "evidence": [
+          {
+            "kind": "name",
+            "detail": "named 'coverage', which is not proof",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture",
+        "size": {
+          "logical_bytes": 10,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      },
+      {
+        "id": "05a3ae00340a",
+        "name": "node_modules",
+        "path": "C:\\sift-fixture\\ambiguous\\node_modules",
+        "relative_path": "ambiguous/node_modules",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.node_modules",
+        "category": "dependencies",
+        "description": "Installed npm packages (restored by your package manager's install)",
+        "confidence": "low",
+        "ambiguous": true,
+        "cleanable": false,
+        "review_reason": "only the name matches; no manifest or marker confirms it",
+        "evidence": [
+          {
+            "kind": "name",
+            "detail": "named 'node_modules', which is not proof",
+            "path": null
+          }
+        ],
+        "project_path": "C:\\sift-fixture",
+        "size": {
+          "logical_bytes": 10,
+          "allocated_bytes": 4096,
+          "allocated_method": "estimated",
+          "file_count": 1,
+          "dir_count": 0,
+          "link_count": 0,
+          "error_count": 0,
+          "complete": true
+        }
+      }
+    ],
+    "issues": [],
+    "totals": {
+      "artifact_count": 35,
+      "cleanable_count": 26,
+      "review_count": 9,
+      "measured_count": 35,
+      "file_count": 164,
+      "logical_bytes": 129671,
+      "allocated_bytes": 712704,
+      "cleanable_logical_bytes": 123791,
+      "cleanable_allocated_bytes": 671744
+    },
+    "stats": {
+      "directories_visited": 22,
+      "links_skipped": 1,
+      "excluded": 1,
+      "discovery_ms": 9.98,
+      "sizing_ms": 6.18,
+      "total_ms": 16.17
+    }
+  },
+  "detail": {
+    "artifact": {
+      "id": "cb4f15df3d8b",
+      "name": "target",
+      "path": "C:\\sift-fixture\\rust-app\\target",
+      "relative_path": "rust-app/target",
+      "kind": "directory",
+      "ecosystem": "rust",
+      "rule": "rust.target",
+      "category": "build-output",
+      "description": "Cargo build output (rebuilt by `cargo build`)",
+      "confidence": "high",
+      "ambiguous": false,
+      "cleanable": true,
+      "review_reason": null,
+      "evidence": [
+        {
+          "kind": "manifest",
+          "detail": "Cargo.toml is next to it",
+          "path": "C:\\sift-fixture\\rust-app\\Cargo.toml"
+        },
+        {
+          "kind": "marker",
+          "detail": "contains .rustc_info.json",
+          "path": "C:\\sift-fixture\\rust-app\\target\\.rustc_info.json"
+        },
+        {
+          "kind": "marker",
+          "detail": "contains CACHEDIR.TAG",
+          "path": "C:\\sift-fixture\\rust-app\\target\\CACHEDIR.TAG"
+        }
+      ],
+      "project_path": "C:\\sift-fixture\\rust-app",
+      "size": {
+        "logical_bytes": 16307,
+        "allocated_bytes": 28672,
+        "allocated_method": "estimated",
+        "file_count": 5,
+        "dir_count": 3,
+        "link_count": 0,
+        "error_count": 0,
+        "complete": true
+      }
+    },
+    "scan_id": "20261117-073536-b815fa",
+    "scan_root": "C:\\sift-fixture",
+    "exists": true,
+    "still_matches": true,
+    "current_size": {
+      "logical_bytes": 16307,
+      "allocated_bytes": 28672,
+      "allocated_method": "estimated",
+      "file_count": 5,
+      "dir_count": 3,
+      "link_count": 0,
+      "error_count": 0,
+      "complete": true
+    },
+    "children": [
+      {
+        "name": "debug",
+        "kind": "directory",
+        "logical_bytes": 16144,
+        "file_count": 3
+      },
+      {
+        "name": ".rustc_info.json",
+        "kind": "file",
+        "logical_bytes": 120,
+        "file_count": 1
+      },
+      {
+        "name": "CACHEDIR.TAG",
+        "kind": "file",
+        "logical_bytes": 43,
+        "file_count": 1
+      }
+    ],
+    "cleanup_allowed": true,
+    "cleanup_refusal": null
+  },
+  "plan": {
+    "id": "8179628ec490bea2",
+    "scan_id": "20261117-073536-b815fa",
+    "root": "C:\\sift-fixture",
+    "created_at": "2026-11-17T07:35:36.406260Z",
+    "expires_at": "2026-11-17T07:45:36.406260Z",
+    "dry_run": false,
+    "min_confidence": "medium",
+    "items": [
+      {
+        "artifact_id": "cb4f15df3d8b",
+        "name": "target",
+        "path": "C:\\sift-fixture\\rust-app\\target",
+        "relative_path": "rust-app/target",
+        "kind": "directory",
+        "ecosystem": "rust",
+        "rule": "rust.target",
+        "confidence": "high",
+        "file_count": 5,
+        "logical_bytes": 16307,
+        "allocated_bytes": 28672,
+        "allowed": true,
+        "refusal_code": null,
+        "refusal_reason": null,
+        "identity": [
+          13853209163682567390,
+          41376821576577732
+        ]
+      },
+      {
+        "artifact_id": "eeb56cf1cfb5",
+        "name": ".next",
+        "path": "C:\\sift-fixture\\node-app\\.next",
+        "relative_path": "node-app/.next",
+        "kind": "directory",
+        "ecosystem": "node",
+        "rule": "node.next",
+        "confidence": "high",
+        "file_count": 2,
+        "logical_bytes": 8213,
+        "allocated_bytes": 12288,
+        "allowed": true,
+        "refusal_code": null,
+        "refusal_reason": null,
+        "identity": [
+          13853209163682567390,
+          73183493944895938
+        ]
+      },
+      {
+        "artifact_id": "fd6c85ea7b8e",
+        "name": "build",
+        "path": "C:\\sift-fixture\\ambiguous\\build",
+        "relative_path": "ambiguous/build",
+        "kind": "directory",
+        "ecosystem": "general",
+        "rule": "unknown.build",
+        "confidence": "low",
+        "file_count": 1,
+        "logical_bytes": 100,
+        "allocated_bytes": 4096,
+        "allowed": false,
+        "refusal_code": "ambiguous",
+        "refusal_reason": "it is ambiguous: only the name matches; no manifest or marker confirms it",
+        "identity": null
+      }
+    ],
+    "totals": {
+      "detected_count": 35,
+      "detected_bytes": 129671,
+      "selected_count": 3,
+      "selected_bytes": 24620,
+      "deletable_count": 2,
+      "deletable_bytes": 24520,
+      "deletable_file_count": 7,
+      "refused_count": 1,
+      "refused_bytes": 100
+    },
+    "confirmation_token": "67b385ef38f788bfc0b36cea94afd0f5f1b4ade4f66028ea7918f4abe6572869"
+  },
+  "dryRunResult": {
+    "id": "7f0f041aa21b9fe3",
+    "plan_id": "e568868b05160811",
+    "scan_id": "20261117-073536-b815fa",
+    "root": "C:\\sift-fixture",
+    "started_at": "2026-11-17T07:35:36.411599Z",
+    "finished_at": "2026-11-17T07:35:36.411599Z",
+    "dry_run": true,
+    "cancelled": false,
+    "items": [
+      {
+        "artifact_id": "cb4f15df3d8b",
+        "name": "target",
+        "path": "C:\\sift-fixture\\rust-app\\target",
+        "relative_path": "rust-app/target",
+        "status": "dry-run",
+        "selected_bytes": 16307,
+        "deleted_bytes": 0,
+        "failed_bytes": 0,
+        "deleted_files": 0,
+        "message": "dry run: nothing was deleted",
+        "errors": []
+      }
+    ],
+    "totals": {
+      "detected_bytes": 129671,
+      "selected_bytes": 16307,
+      "deleted_bytes": 0,
+      "failed_bytes": 0,
+      "refused_bytes": 0,
+      "would_delete_bytes": 16307,
+      "deleted_count": 0,
+      "failed_count": 0,
+      "refused_count": 0
+    }
+  },
+  "history": {
+    "enabled": true,
+    "scans": [
+      {
+        "id": "20261117-073536-b815fa",
+        "root": "C:\\sift-fixture",
+        "started_at": "2026-11-17T07:35:36.348734Z",
+        "recursive": true,
+        "artifact_count": 35,
+        "logical_bytes": 129671,
+        "allocated_bytes": 712704,
+        "total_ms": 16.17
+      }
+    ],
+    "cleanups": [
+      {
+        "id": "7f0f041aa21b9fe3",
+        "scan_id": "20261117-073536-b815fa",
+        "root": "C:\\sift-fixture",
+        "started_at": "2026-11-17T07:35:36.411599Z",
+        "dry_run": true,
+        "cancelled": false,
+        "selected_bytes": 16307,
+        "deleted_bytes": 0,
+        "failed_bytes": 0,
+        "item_count": 1
+      }
+    ]
+  }
+}
